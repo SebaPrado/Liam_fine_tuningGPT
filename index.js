@@ -63,7 +63,13 @@ app.post("/chat", async (req, res) => {
     });
   }
 
+<<<<<<< HEAD
+  // Agregar validación para los campos personalizados de ManyChat
+  console.log("Received thread_id:", thread_id); // Registro del thread_id recibido
+
+=======
   // Add validation for ManyChat custom fields
+>>>>>>> d7d04a02a714400c058a5ac9b46ff0966f6d107e
   if (thread_id && thread_id.includes("{{")) {
     console.log("Error: Invalid thread_id format");
     return res.status(400).json({
@@ -74,7 +80,11 @@ app.post("/chat", async (req, res) => {
 
   if (!thread_id) {
     console.log("Error: Missing thread_id in /chat");
+<<<<<<< HEAD
+    return res.status(400).json({ error: "Missing thread_id here" }); // <<<<<<<<<<<<    PROBLEMA   <<<<<<<<<<<<
+=======
     return res.status(400).json({ error: "Missing thread_id" });
+>>>>>>> d7d04a02a714400c058a5ac9b46ff0966f6d107e
   }
 
   try {
@@ -86,15 +96,34 @@ app.post("/chat", async (req, res) => {
 
     // Create message
     await client.beta.threads.messages.create({
+<<<<<<< HEAD
+      thread_id: thread_id,
+      content: [
+        {
+          type: "text",
+          text: message,
+          role: "user",
+        },
+      ],
+      role: "user",
+    });
+    // await client.beta.threads.messages.create({
+    //   thread_id,
+    //   role: "user",
+    //   content: message,
+    // });
+=======
       thread_id,
       role: "user",
       content: message,
     });
+>>>>>>> d7d04a02a714400c058a5ac9b46ff0966f6d107e
 
     // Create run
     const run = await client.beta.threads.runs.create({
       thread_id,
       assistant_id,
+      role: "user",
     });
 
     console.log("Run started with ID:", run.id);
