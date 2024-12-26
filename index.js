@@ -16,10 +16,8 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // ==========   2)  Crear o cargar el ID del asistente    =========== //
 
-// 2.a ) Variable global para almacenar el ID del asistente //
-let assistant_id;
-// 2.b) Función asíncrona para inicializar el asistente
-async function initializeAssistant() {
+let assistant_id; // variable para almacenar el assistant_id
+async function initializeAssistant() { // Inicializar el asistente
   // Llama a la función create_assistant y espera su resultado
   assistant_id = await functions.create_assistant(client);
   console.log("Assistant created with ID:", assistant_id);
@@ -95,7 +93,6 @@ app.post("/chat", async (req, res) => {
     const run = await client.beta.threads.runs.create({
       thread_id,
       assistant_id,
-      role: "user",
     });
 
     console.log("Run started with ID:", run.id);
