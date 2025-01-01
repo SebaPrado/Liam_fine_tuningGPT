@@ -5,7 +5,7 @@ const ngrok = require("@ngrok/ngrok");
 
 const express = require("express");
 const OpenAI = require("openai");
-const functions = require("./functions");
+// const functions = require("./functions");
 const { log } = require("console");
 
 // Configuración inicial
@@ -17,13 +17,13 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // // ==========   2)  Crear o cargar el ID del asistente    =========== //
 
-let assistant_id; // variable para almacenar el assistant_id
-async function initializeAssistant() {
-  assistant_id = await functions.create_assistant(client);
-  console.log("Assistant created with ID:", assistant_id);
-  // Llama a la función create_assistant y espera su resultado
-}
-initializeAssistant();
+// let assistant_id; // variable para almacenar el assistant_id
+// async function initializeAssistant() {
+//   assistant_id = await functions.create_assistant(client);
+//   console.log("Assistant created with ID:", assistant_id);
+//   // Llama a la función create_assistant y espera su resultado
+// }
+// initializeAssistant();
 
 //  =============       Ruta START     ===========   //
 
