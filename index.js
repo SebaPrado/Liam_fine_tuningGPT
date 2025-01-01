@@ -41,7 +41,7 @@ app.get("/start", async (req, res) => {
     // Manejo de errores
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: " Seba: Internal server error" });
   }
 });
 
