@@ -36,7 +36,7 @@ app.get("/start", async (req, res) => {
     console.log("Seba: New conversation started with thread ID:", thread.id);
 
     // Devuelve el ID del thread al cliente
-    res.json({ thread_id: thread.id });
+    res.json({ thread_id: thread.id, mensaje: "seba" });
 
     // Manejo de errores
   } catch (error) {
