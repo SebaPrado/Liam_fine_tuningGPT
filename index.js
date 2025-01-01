@@ -33,7 +33,7 @@ app.get("/start", async (req, res) => {
     const thread = await client.beta.threads.create();
 
     // Registra el ID del nuevo thread en la consola
-    console.log("New conversation started with thread ID:", thread.id);
+    console.log("Seba: New conversation started with thread ID:", thread.id);
 
     // Devuelve el ID del thread al cliente
     res.json({ thread_id: thread.id });
