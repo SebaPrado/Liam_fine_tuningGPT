@@ -49,14 +49,17 @@ app.get("/start", async (req, res) => {
 
 // Definir la ruta POST
 app.post("/chat", async (req, res) => {
-  const { messages } = req.body; // Desestructurar el cuerpo de la solicitud para obtener messages
-
+  const { messages, first_name } = req.body; // Desestructurar el cuerpo de la solicitud para obtener messages
+  if (!first_name) {
+    first_name = "Sebastiansito";
+  }
   const preguntaUsuario = messages.content; // Acceder al contenido del primer mensaje
 
   try {
     const completion = await client.chat.completions.create({
       model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M", // Tu modelo fine-tuned
       messages: [
+        { role: "system", content: `The user's name is ${first_name}.` },
         {
           role: "user",
           content: preguntaUsuario,
