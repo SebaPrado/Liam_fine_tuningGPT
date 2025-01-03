@@ -198,10 +198,9 @@ const app = express();
 // });
 
 // Mensaje al iniciar el servidor
-console.log("El servidor ha iniciado correctamente.");
 
 // Puerto de escucha
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
