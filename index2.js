@@ -6,7 +6,7 @@
 // const express = require("express");
 // const OpenAI = require("openai");
 // const functions = require("./functions");
-const { log } = require("console");
+// const { log } = require("console");
 
 // // Configuración inicial
 // const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
