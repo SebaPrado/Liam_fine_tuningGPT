@@ -3,14 +3,14 @@
 // require("dotenv").config();
 // const ngrok = require("@ngrok/ngrok");
 
-// const express = require("express");
+const express = require("express");
 // const OpenAI = require("openai");
 // const functions = require("./functions");
-// const { log } = require("console");
+const { log } = require("console");
 
 // // Configuración inicial
 // const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-// const app = express();
+const app = express();
 // app.use(express.json());
 
 // const client = new OpenAI({ apiKey: OPENAI_API_KEY });
@@ -197,8 +197,11 @@
 //   }
 // });
 
-// // Puerto de escucha
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
+// Mensaje al iniciar el servidor
+console.log("El servidor ha iniciado correctamente.");
+
+// Puerto de escucha
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
