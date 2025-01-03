@@ -10,7 +10,7 @@
 
 // // Configuración inicial
 // const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const app = express();
+// const app = express();
 // app.use(express.json());
 
 // const client = new OpenAI({ apiKey: OPENAI_API_KEY });
