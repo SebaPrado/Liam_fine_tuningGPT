@@ -26,7 +26,7 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 // }
 // initializeAssistant();
 
-//  =============       Ruta USER BUSY TIMES      ===========   //
+//  =============       Ruta USER BUSY TIMES de aca a 21 Dias     ===========   //
 
 app.get("/user_busy_times_1stWeek", async (req, res) => {
   try {
@@ -81,9 +81,116 @@ app.get("/user_busy_times_1stWeek", async (req, res) => {
     res.status(500).json({ error: "Error interno al consultar Calendly" });
   }
 });
-
-console.log("la variable start fuera de la funcion : ", start_time );
-console.log("la variable end fuera de la funcion : ", end_time );
+app.get("/user_busy_times_2ndWeek", async (req, res) => {
+    try {
+      // Define los parámetros de la consulta
+      const start_time = new Date();
+      start_time.setDate(start_time.getDate() + 7); // Cambiado para sumar 7 días
+      console.log("en siete dias sera : ", start_time);
+      const end_time = new Date(start_time);
+      end_time.setDate(start_time.getDate() + 7);
+      console.log("en 14 dias es : ", end_time);
+      const user =
+        "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+  
+      // const start_time = todaysDate;
+      // const end_time = end_time;
+  
+      // Realiza la llamada a la API externa usando axios
+      const response = await axios.get(
+        "https://api.calendly.com/user_busy_times",
+        {
+          params: {
+            user,
+            start_time,
+            end_time,
+          },
+          headers: {
+            Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // Registra la respuesta en la consola
+      // console.log("Respuesta de Calendly:", response.data);
+      const collection = response.data.collection;
+      // console.log("esto es collection : ", collection);
+      const appointments = [];
+  
+      for (let index = 0; index < collection.length; index++) {
+        const appointment = collection[index];
+        appointments.push([
+          { appointment_numero: index },
+          { startTime: appointment.buffered_start_time },
+          { endTime: appointment.buffered_end_time },
+        ]);
+      }
+  
+      // Devuelve la respuesta al cliente
+      res.json(appointments);
+  
+      // Manejo de errores
+    } catch (error) {
+      console.error("Error al consultar la API de Calendly:", error.message);
+      res.status(500).json({ error: "Error interno al consultar Calendly" });
+    }
+  });
+  app.get("/user_busy_times_3rdWeek", async (req, res) => {
+    try {
+      // Define los parámetros de la consulta
+      const start_time = new Date();
+      start_time.setDate(start_time.getDate() + 14); // Cambiado para sumar 7 días
+      console.log("en 14 dias sera : ", start_time);
+      const end_time = new Date(start_time);
+      end_time.setDate(start_time.getDate() + 7);
+      console.log("en 21 dias es : ", end_time);
+      const user =
+        "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+  
+      // const start_time = todaysDate;
+      // const end_time = end_time;
+  
+      // Realiza la llamada a la API externa usando axios
+      const response = await axios.get(
+        "https://api.calendly.com/user_busy_times",
+        {
+          params: {
+            user,
+            start_time,
+            end_time,
+          },
+          headers: {
+            Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // Registra la respuesta en la consola
+      // console.log("Respuesta de Calendly:", response.data);
+      const collection = response.data.collection;
+      // console.log("esto es collection : ", collection);
+      const appointments = [];
+  
+      for (let index = 0; index < collection.length; index++) {
+        const appointment = collection[index];
+        appointments.push([
+          { appointment_numero: index },
+          { startTime: appointment.buffered_start_time },
+          { endTime: appointment.buffered_end_time },
+        ]);
+      }
+  
+      // Devuelve la respuesta al cliente
+      res.json(appointments);
+  
+      // Manejo de errores
+    } catch (error) {
+      console.error("Error al consultar la API de Calendly:", error.message);
+      res.status(500).json({ error: "Error interno al consultar Calendly" });
+    }
+  });
+// console.log("la variable start fuera de la funcion : ", start_time );
+// console.log("la variable end fuera de la funcion : ", end_time );
 
 //==================================================================================
 
