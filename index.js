@@ -28,7 +28,6 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 //  =============       Ruta USER BUSY TIMES      ===========   //
 
-
 app.get("/user_busy_times", async (req, res) => {
   try {
     // Define los parámetros de la consulta
@@ -43,21 +42,32 @@ app.get("/user_busy_times", async (req, res) => {
       {
         params: {
           user,
-          start_time,
           end_time,
+          start_time,
         },
         headers: {
-          Authorization: `Bearer CALENDLY_TOKEN_AQUI`, // Reemplaza con tu token válido de Calendly
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
+          "Content-Type": "application/json",
         },
       }
     );
-
     // Registra la respuesta en la consola
     console.log("Respuesta de Calendly:", response.data);
+    const collection = response.data.collection;
+    console.log("esto es collection : ", collection);
+    const appointments = [];
+
+    for (let index = 0; index < collection.length; index++) {
+      const appointment = collection[index];
+      appointments.push([
+        { appointment: index },
+        { startTime: appointment.buffered_start_time },
+        { endTime: appointment.buffered_end_time },
+      ]);
+    }
 
     // Devuelve la respuesta al cliente
-    res.json(response.data);
+    res.json(appointments);
 
     // Manejo de errores
   } catch (error) {
