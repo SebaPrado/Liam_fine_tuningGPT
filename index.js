@@ -27,6 +27,10 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 //  =============       Ruta START     ===========   //
 
+app.get ("/availability", async(req, res)=>{
+    
+})
+
 app.get("/start", async (req, res) => {
   try {
     // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
