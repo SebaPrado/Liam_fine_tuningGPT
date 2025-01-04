@@ -28,13 +28,19 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 //  =============       Ruta USER BUSY TIMES      ===========   //
 
-app.get("/user_busy_times", async (req, res) => {
+app.get("/user_busy_times_1stWeek", async (req, res) => {
   try {
     // Define los parámetros de la consulta
+    const start_time = new Date();
+    console.log("hoy es : ", start_time);
+    const end_time = new Date(start_time);
+    end_time.setDate(start_time.getDate() + 7);
+    console.log("manana es : ", end_time);
     const user =
       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-    const start_time = "2025-01-06T05:00:00.000000Z";
-    const end_time = "2025-01-08T20:30:00.000000Z";
+
+    // const start_time = todaysDate;
+    // const end_time = end_time;
 
     // Realiza la llamada a la API externa usando axios
     const response = await axios.get(
@@ -42,8 +48,8 @@ app.get("/user_busy_times", async (req, res) => {
       {
         params: {
           user,
-          end_time,
           start_time,
+          end_time,
         },
         headers: {
           Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
@@ -52,15 +58,15 @@ app.get("/user_busy_times", async (req, res) => {
       }
     );
     // Registra la respuesta en la consola
-    console.log("Respuesta de Calendly:", response.data);
+    // console.log("Respuesta de Calendly:", response.data);
     const collection = response.data.collection;
-    console.log("esto es collection : ", collection);
+    // console.log("esto es collection : ", collection);
     const appointments = [];
 
     for (let index = 0; index < collection.length; index++) {
       const appointment = collection[index];
       appointments.push([
-        { appointment: index },
+        { appointment_numero: index },
         { startTime: appointment.buffered_start_time },
         { endTime: appointment.buffered_end_time },
       ]);
@@ -75,6 +81,9 @@ app.get("/user_busy_times", async (req, res) => {
     res.status(500).json({ error: "Error interno al consultar Calendly" });
   }
 });
+
+console.log("la variable start fuera de la funcion : ", start_time );
+console.log("la variable end fuera de la funcion : ", end_time );
 
 //==================================================================================
 
