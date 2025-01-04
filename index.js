@@ -194,7 +194,6 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 // console.log("la variable start fuera de la funcion : ", start_time );
 // console.log("la variable end fuera de la funcion : ", end_time );
 
-// ... código existente ...
 
 //  =============       Ruta USER BUSY TIMES para las tres semanas     ===========   //
 
