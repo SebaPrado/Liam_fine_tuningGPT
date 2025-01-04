@@ -194,7 +194,6 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 // console.log("la variable start fuera de la funcion : ", start_time );
 // console.log("la variable end fuera de la funcion : ", end_time );
 
-
 //  =============       Ruta USER BUSY TIMES para las tres semanas     ===========   //
 
 var appointments2 = [];
@@ -251,10 +250,11 @@ app.get("/user_busy_times_123Weeks", async (req, res) => {
 
     // Devuelve la respuesta al cliente
     res.json(appointments);
-    // var appointments2 = appointments
     console.log("weeks", weeks);
     console.log("array1 appointments:", appointments);
-    // console.log("array1 appointments:", appointments2);
+
+    // Llama a la función main después de llenar appointments
+    await main(appointments); // Pasa appointments a la función main
   } catch (error) {
     console.error("Error al consultar la API de Calendly:", error.message);
     res.status(500).json({ error: "Error interno al consultar Calendly" });
@@ -262,6 +262,36 @@ app.get("/user_busy_times_123Weeks", async (req, res) => {
 });
 
 console.log("array2 appointments:", appointments);
+
+//======================================
+
+const openai = new OpenAI();
+async function main(appointments) {
+  console.log("hola seba", appointments);
+  if (!Array.isArray(appointments)) {
+    throw new Error('Appointments must be an array');
+  }
+
+  const formattedAppointments = JSON.stringify(appointments, null, 2);
+  const stream = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "user",
+        content:
+          "can you please let me know all the appointmets in the list ?? and also , tell me if you have a spot for the 8/1 at 11 ",
+      },
+      {
+        role: "system",
+        content: `Here are the already booked appointments so you dont overshchedule: ${formattedAppointments}`,
+      },
+    ],
+    stream: true,
+  });
+  for await (const chunk of stream) {
+    process.stdout.write(chunk.choices[0]?.delta?.content || "");
+  }
+}
 
 //==================================================================================
 
