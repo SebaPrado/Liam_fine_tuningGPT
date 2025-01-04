@@ -28,7 +28,7 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 //  =============       Ruta USER BUSY TIMES de aca a 21 Dias     ===========   //
 
-const appointments = [];
+// const appointments = [];
 
 // app.get("/user_busy_times_1stWeek", async (req, res) => {
 //   try {
@@ -198,11 +198,12 @@ const appointments = [];
 
 //  =============       Ruta USER BUSY TIMES para las tres semanas     ===========   //
 
+var appointments2 = [];
+let appointments = []; // Array para almacenar todas las citas
 app.get("/user_busy_times_123Weeks", async (req, res) => {
   try {
     const user =
       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-    const appointments = []; // Array para almacenar todas las citas
 
     // Definir los tiempos de inicio y fin para cada semana
     const weeks = [
@@ -251,15 +252,17 @@ app.get("/user_busy_times_123Weeks", async (req, res) => {
 
     // Devuelve la respuesta al cliente
     res.json(appointments);
+    // var appointments2 = appointments
     console.log("weeks", weeks);
-    console.log("array appointments:", appointments);
+    console.log("array1 appointments:", appointments);
+    // console.log("array1 appointments:", appointments2);
   } catch (error) {
     console.error("Error al consultar la API de Calendly:", error.message);
     res.status(500).json({ error: "Error interno al consultar Calendly" });
   }
 });
 
-// ... código existente ...
+console.log("array2 appointments:", appointments);
 
 //==================================================================================
 
