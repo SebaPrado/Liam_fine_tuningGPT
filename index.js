@@ -2,6 +2,7 @@
 
 require("dotenv").config();
 const ngrok = require("@ngrok/ngrok");
+const axios = require("axios");
 
 const express = require("express");
 const OpenAI = require("openai");
@@ -25,11 +26,49 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 // }
 // initializeAssistant();
 
-//  =============       Ruta START     ===========   //
+//  =============       Ruta USER BUSY TIMES      ===========   //
 
-app.get ("/availability", async(req, res)=>{
-    
-})
+
+app.get("/user_busy_times", async (req, res) => {
+  try {
+    // Define los parámetros de la consulta
+    const user =
+      "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+    const start_time = "2025-01-06T05:00:00.000000Z";
+    const end_time = "2025-01-08T20:30:00.000000Z";
+
+    // Realiza la llamada a la API externa usando axios
+    const response = await axios.get(
+      "https://api.calendly.com/user_busy_times",
+      {
+        params: {
+          user,
+          start_time,
+          end_time,
+        },
+        headers: {
+          Authorization: `Bearer CALENDLY_TOKEN_AQUI`, // Reemplaza con tu token válido de Calendly
+          "Content-Type": "application/json"
+        },
+      }
+    );
+
+    // Registra la respuesta en la consola
+    console.log("Respuesta de Calendly:", response.data);
+
+    // Devuelve la respuesta al cliente
+    res.json(response.data);
+
+    // Manejo de errores
+  } catch (error) {
+    console.error("Error al consultar la API de Calendly:", error.message);
+    res.status(500).json({ error: "Error interno al consultar Calendly" });
+  }
+});
+
+//==================================================================================
+
+//  =============       Ruta START     ===========   //
 
 app.get("/start", async (req, res) => {
   try {
