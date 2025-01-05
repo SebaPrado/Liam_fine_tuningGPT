@@ -306,7 +306,8 @@ const AppointmentStore = {
     }
 };
 
-//  =============       Ruta START     ===========   //
+//=======================================================//
+ //  =============       Ruta START     ===========   //
 
 // app.get("/start", async (req, res) => {
 //   try {
@@ -325,7 +326,6 @@ const AppointmentStore = {
 //     res.status(500).json({ error: " Seba: Internal server error" });
 //   }
 // });
-
 
 //==================================================================//
 //==================         Ruta START 2.0     =================  //
