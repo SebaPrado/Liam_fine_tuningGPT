@@ -196,104 +196,115 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 //  =============       Ruta USER BUSY TIMES para las tres semanas     ===========   //
 
-var appointments2 = [];
-let appointments = []; // Array para almacenar todas las citas
-app.get("/user_busy_times_123Weeks", async (req, res) => {
-  try {
-    const user =
-      "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+// var appointments2 = [];
+// let appointments = []; // Array para almacenar todas las citas
+// app.get("/user_busy_times_123Weeks", async (req, res) => {
+//   try {
+//     const user =
+//       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
 
-    // Definir los tiempos de inicio y fin para cada semana
-    const weeks = [
-      {
-        start: new Date(),
-        end: new Date(new Date().setDate(new Date().getDate() + 7)),
-      }, // 1st week
-      {
-        start: new Date(new Date().setDate(new Date().getDate() + 7)),
-        end: new Date(new Date().setDate(new Date().getDate() + 14)),
-      }, // 2nd week
-      {
-        start: new Date(new Date().setDate(new Date().getDate() + 14)),
-        end: new Date(new Date().setDate(new Date().getDate() + 21)),
-      }, // 3rd week
-    ];
+//     // Definir los tiempos de inicio y fin para cada semana
+//     const weeks = [
+//       {
+//         start: new Date(),
+//         end: new Date(new Date().setDate(new Date().getDate() + 7)),
+//       }, // 1st week
+//       {
+//         start: new Date(new Date().setDate(new Date().getDate() + 7)),
+//         end: new Date(new Date().setDate(new Date().getDate() + 14)),
+//       }, // 2nd week
+//       {
+//         start: new Date(new Date().setDate(new Date().getDate() + 14)),
+//         end: new Date(new Date().setDate(new Date().getDate() + 21)),
+//       }, // 3rd week
+//     ];
 
-    // Llamar a la API para cada semana
-    for (const week of weeks) {
-      const response = await axios.get(
-        "https://api.calendly.com/user_busy_times",
-        {
-          params: {
-            user,
-            start_time: week.start.toISOString(), // Convertir a ISO string
-            end_time: week.end.toISOString(), // Convertir a ISO string
-          },
-          headers: {
-            Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+//     // Llamar a la API para cada semana
+//     for (const week of weeks) {
+//       const response = await axios.get(
+//         "https://api.calendly.com/user_busy_times",
+//         {
+//           params: {
+//             user,
+//             start_time: week.start.toISOString(), // Convertir a ISO string
+//             end_time: week.end.toISOString(), // Convertir a ISO string
+//           },
+//           headers: {
+//             Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
 
-      const collection = response.data.collection;
+//       const collection = response.data.collection;
 
-      for (let index = 0; index < collection.length; index++) {
-        const appointment = collection[index];
-        appointments.push([
-          { appointment_numero: index },
-          { startTime: appointment.buffered_start_time },
-          { endTime: appointment.buffered_end_time },
-        ]);
-      }
-    }
+//       for (let index = 0; index < collection.length; index++) {
+//         const appointment = collection[index];
+//         appointments.push([
+//           { appointment_numero: index },
+//           { startTime: appointment.buffered_start_time },
+//           { endTime: appointment.buffered_end_time },
+//         ]);
+//       }
+//     }
 
-    // Devuelve la respuesta al cliente
-    res.json(appointments);
-    console.log("weeks", weeks);
-    console.log("array1 appointments:", appointments);
+//     // Devuelve la respuesta al cliente
+//     res.json(appointments);
+//     console.log("weeks", weeks);
+//     console.log("array1 appointments:", appointments);
 
-    // Llama a la función main después de llenar appointments
-    await main(appointments); // Pasa appointments a la función main
-  } catch (error) {
-    console.error("Error al consultar la API de Calendly:", error.message);
-    res.status(500).json({ error: "Error interno al consultar Calendly" });
-  }
-});
+//     // Llama a la función main después de llenar appointments
+//     await main(appointments); // Pasa appointments a la función main
+//   } catch (error) {
+//     console.error("Error al consultar la API de Calendly:", error.message);
+//     res.status(500).json({ error: "Error interno al consultar Calendly" });
+//   }
+// });
 
-console.log("array2 appointments:", appointments);
+// console.log("array2 appointments:", appointments);
 
 //======================================
 
-const openai = new OpenAI();
-async function main(appointments) {
-  console.log("hola seba", appointments);
-  if (!Array.isArray(appointments)) {
-    throw new Error('Appointments must be an array');
-  }
+// const openai = new OpenAI();
+// async function main(appointments) {
+//   console.log("hola seba", appointments);
+//   if (!Array.isArray(appointments)) {
+//     throw new Error('Appointments must be an array');
+//   }
 
-  const formattedAppointments = JSON.stringify(appointments, null, 2);
-  const stream = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "user",
-        content:
-          "can you please let me know all the appointmets in the list ?? and also , tell me if you have a spot for the 8/1 at 11 ",
-      },
-      {
-        role: "system",
-        content: `Here are the already booked appointments so you dont overshchedule: ${formattedAppointments}`,
-      },
-    ],
-    stream: true,
-  });
-  for await (const chunk of stream) {
-    process.stdout.write(chunk.choices[0]?.delta?.content || "");
-  }
-}
+//   const formattedAppointments = JSON.stringify(appointments, null, 2);
+//   const stream = await openai.chat.completions.create({
+//     model: "gpt-4o-mini",
+//     messages: [
+//       {
+//         role: "user",
+//         content:
+//           "can you please let me know all the appointmets in the list ?? and also , tell me if you have a spot for the 8/1 at 11 ",
+//       },
+//       {
+//         role: "system",
+//         content: `Here are the already booked appointments so you dont overshchedule: ${formattedAppointments}`,
+//       },
+//     ],
+//     stream: true,
+//   });
+//   for await (const chunk of stream) {
+//     process.stdout.write(chunk.choices[0]?.delta?.content || "");
+//   }
+// }
 
-//==================================================================================
+//==================================================================================//
+
+// This creates our central storage for appointments data
+const AppointmentStore = {
+    appointments: null,
+    setAppointments: function(data) {
+        this.appointments = data;
+    },
+    getAppointments: function() {
+        return this.appointments;
+    }
+};
 
 //  =============       Ruta START     ===========   //
 
