@@ -308,54 +308,166 @@ const AppointmentStore = {
 
 //  =============       Ruta START     ===========   //
 
+// app.get("/start", async (req, res) => {
+//   try {
+//     // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
+//     const thread = await client.beta.threads.create();
+
+//     // Registra el ID del nuevo thread en la consola
+//     console.log("Seba: New conversation started with thread ID:", thread.id);
+
+//     // Devuelve el ID del thread al cliente
+//     res.json({ thread_id: thread.id, mensaje: "seba" });
+
+//     // Manejo de errores
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: " Seba: Internal server error" });
+//   }
+// });
+
+
+//==================================================================//
+//==================         Ruta START 2.0     =================  //
+
 app.get("/start", async (req, res) => {
-  try {
-    // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
-    const thread = await client.beta.threads.create();
+    try {
+        // First, create the thread as you were doing before
+        const thread = await client.beta.threads.create();
+        console.log("New conversation started with thread ID:", thread.id);
 
-    // Registra el ID del nuevo thread en la consola
-    console.log("Seba: New conversation started with thread ID:", thread.id);
+        // Now, let's fetch appointments from Calendly
+        const user = "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+        const appointments = [];
 
-    // Devuelve el ID del thread al cliente
-    res.json({ thread_id: thread.id, mensaje: "seba" });
+        // We're keeping your three-week structure
+        const weeks = [
+            {
+                start: new Date(),
+                end: new Date(new Date().setDate(new Date().getDate() + 7)),
+            },
+            {
+                start: new Date(new Date().setDate(new Date().getDate() + 7)),
+                end: new Date(new Date().setDate(new Date().getDate() + 14)),
+            },
+            {
+                start: new Date(new Date().setDate(new Date().getDate() + 14)),
+                end: new Date(new Date().setDate(new Date().getDate() + 21)),
+            },
+        ];
 
-    // Manejo de errores
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: " Seba: Internal server error" });
-  }
+        // Fetch appointments for each week
+        for (const week of weeks) {
+            const response = await axios.get(
+                "https://api.calendly.com/user_busy_times",
+                {
+                    params: {
+                        user,
+                        start_time: week.start.toISOString(),
+                        end_time: week.end.toISOString(),
+                    },
+                    headers: {
+                        Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const collection = response.data.collection;
+            for (let index = 0; index < collection.length; index++) {
+                const appointment = collection[index];
+                appointments.push([
+                    { appointment_numero: index },
+                    { startTime: appointment.buffered_start_time },
+                    { endTime: appointment.buffered_end_time },
+                ]);
+            }
+        }
+
+        // Store the appointments in our AppointmentStore
+        AppointmentStore.setAppointments(appointments);
+
+        // Send back both the thread ID and confirmation that appointments were loaded
+        res.json({ 
+            thread_id: thread.id, 
+            appointments_loaded: true,
+            message: "Conversation started and appointments loaded successfully" 
+        });
+
+    } catch (error) {
+        console.error("Error in /start route:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
 
 // ==================      Ruta CHAT    ================ //
 
 // Definir la ruta POST
+// app.post("/chat", async (req, res) => {
+//   const { messages, first_name } = req.body; // Desestructurar el cuerpo de la solicitud para obtener messages
+//   if (!first_name) {
+//     first_name = "Sebastiansito";
+//   }
+//   const preguntaUsuario = messages.content; // Acceder al contenido del primer mensaje
+
+//   try {
+//     const completion = await client.chat.completions.create({
+//       model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M", // Tu modelo fine-tuned
+//       messages: [
+//         { role: "system", content: `The user's name is ${first_name}.` },
+//         {
+//           role: "user",
+//           content: preguntaUsuario,
+//         },
+//       ],
+//     });
+
+//     //Enviar la respuesta al cliente
+//     res.json({
+//       respuesta: completion.choices[0].message.content,
+//     });
+//   } catch (error) {
+//     console.error("Error:", error.message);
+//     res.status(500).json({ error: error.message }); // Enviar un error al cliente
+//   }
+// });
+
+// ================    Ruta Chat 2.0     ================================ //
+
 app.post("/chat", async (req, res) => {
-  const { messages, first_name } = req.body; // Desestructurar el cuerpo de la solicitud para obtener messages
-  if (!first_name) {
-    first_name = "Sebastiansito";
-  }
-  const preguntaUsuario = messages.content; // Acceder al contenido del primer mensaje
+    const { messages, first_name = "Sebastiansito" } = req.body;
+    const preguntaUsuario = messages.content;
 
-  try {
-    const completion = await client.chat.completions.create({
-      model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M", // Tu modelo fine-tuned
-      messages: [
-        { role: "system", content: `The user's name is ${first_name}.` },
-        {
-          role: "user",
-          content: preguntaUsuario,
-        },
-      ],
-    });
+    try {
+        // Get the current appointments from our store
+        const currentAppointments = AppointmentStore.getAppointments();
+        
+        // Format the appointments for the system message
+        const appointmentsInfo = currentAppointments 
+            ? `Available appointment information: ${JSON.stringify(currentAppointments, null, 2)}`
+            : "No appointment information available";
 
-    //Enviar la respuesta al cliente
-    res.json({
-      respuesta: completion.choices[0].message.content,
-    });
-  } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: error.message }); // Enviar un error al cliente
-  }
+        const completion = await client.chat.completions.create({
+            model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M",
+            messages: [
+                { 
+                    role: "system", 
+                    content: `The user's name is ${first_name}. ${appointmentsInfo}` 
+                },
+                {
+                    role: "user",
+                    content: preguntaUsuario,
+                },
+            ],
+        });
+
+        res.json({
+            respuesta: completion.choices[0].message.content,
+        });
+    } catch (error) {
+        console.error("Error in /chat route:", error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 //==================   Puerto de escucha  3000  ======= //
