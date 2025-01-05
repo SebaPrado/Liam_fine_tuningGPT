@@ -358,6 +358,7 @@ app.get("/start", async (req, res) => {
 
         // Fetch appointments for each week
         for (const week of weeks) {
+        //   const  weeeksIndex = weeks[i]
             const response = await axios.get(
                 "https://api.calendly.com/user_busy_times",
                 {
@@ -391,7 +392,8 @@ app.get("/start", async (req, res) => {
         res.json({ 
             thread_id: thread.id, 
             appointments_loaded: true,
-            message: "Conversation started and appointments loaded successfully" 
+            message: "Conversation started and appointments loaded successfully", 
+            appointments: appointments 
         });
 
     } catch (error) {
@@ -456,7 +458,8 @@ app.post("/chat", async (req, res) => {
                 },
                 {
                     role: "user",
-                    content: preguntaUsuario,
+                    // content: preguntaUsuario,
+                    content: " me podes nobrar los appointments que ya tenes ??"
                 },
             ],
         });
