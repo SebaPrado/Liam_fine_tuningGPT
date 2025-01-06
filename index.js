@@ -130,7 +130,7 @@ class ConversationStore {
     this.threadMetadata.get(thread_id).lastActivity = new Date();
 
     // Mantenemos un límite de historial
-    if (conversation.length > 12) {
+    if (conversation.length > 5) {
       conversation.shift();
     }
   }
