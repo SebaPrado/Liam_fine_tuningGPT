@@ -164,6 +164,7 @@ class ConversationStore {
 
 // Creamos una instancia global
 const conversationStore = new ConversationStore();
+console.log("conversationStore", conversationStore);
 // ============= </>
 
 app.get("/start", async (req, res) => {
@@ -171,6 +172,7 @@ app.get("/start", async (req, res) => {
     // First, create the thread as you were doing before
     const thread = await client.beta.threads.create();
     console.log("New conversation started with thread ID:", thread.id);
+    console.log("conversationStore", conversationStore);
 
     //============ <>
     // Inicializamos el almacenamiento para este thread
