@@ -280,8 +280,8 @@ app.get("/start", async (req, res) => {
 // });
 
 // ===================      Ruta Chat 2.0     =========================== //
-let disable = false;
-if (disable === false) {
+let disableGPT = false;
+if (disableGPT === false) {
   app.post("/chat", async (req, res) => {
     const { messages, nombre, thread_id } = req.body;
     const preguntaUsuario = messages.content;
