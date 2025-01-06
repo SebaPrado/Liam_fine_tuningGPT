@@ -182,71 +182,11 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 //       ]);
 //     }
 
-//     // Devuelve la respuesta al cliente
-//     res.json(appointments);
-
-//     // Manejo de errores
-//   } catch (error) {
-//     console.error("Error al consultar la API de Calendly:", error.message);
-//     res.status(500).json({ error: "Error interno al consultar Calendly" });
-//   }
-// });
+//    
 // console.log("la variable start fuera de la funcion : ", start_time );
 // console.log("la variable end fuera de la funcion : ", end_time );
 
-//  =============       Ruta USER BUSY TIMES para las tres semanas     ===========   //
 
-// var appointments2 = [];
-// let appointments = []; // Array para almacenar todas las citas
-// app.get("/user_busy_times_123Weeks", async (req, res) => {
-//   try {
-//     const user =
-//       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-
-//     // Definir los tiempos de inicio y fin para cada semana
-//     const weeks = [
-//       {
-//         start: new Date(),
-//         end: new Date(new Date().setDate(new Date().getDate() + 7)),
-//       }, // 1st week
-//       {
-//         start: new Date(new Date().setDate(new Date().getDate() + 7)),
-//         end: new Date(new Date().setDate(new Date().getDate() + 14)),
-//       }, // 2nd week
-//       {
-//         start: new Date(new Date().setDate(new Date().getDate() + 14)),
-//         end: new Date(new Date().setDate(new Date().getDate() + 21)),
-//       }, // 3rd week
-//     ];
-
-//     // Llamar a la API para cada semana
-//     for (const week of weeks) {
-//       const response = await axios.get(
-//         "https://api.calendly.com/user_busy_times",
-//         {
-//           params: {
-//             user,
-//             start_time: week.start.toISOString(), // Convertir a ISO string
-//             end_time: week.end.toISOString(), // Convertir a ISO string
-//           },
-//           headers: {
-//             Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
-//             "Content-Type": "application/json",
-//           },
-//         }
-//       );
-
-//       const collection = response.data.collection;
-
-//       for (let index = 0; index < collection.length; index++) {
-//         const appointment = collection[index];
-//         appointments.push([
-//           { appointment_numero: index },
-//           { startTime: appointment.buffered_start_time },
-//           { endTime: appointment.buffered_end_time },
-//         ]);
-//       }
-//     }
 
 //     // Devuelve la respuesta al cliente
 //     res.json(appointments);
@@ -263,7 +203,9 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // console.log("array2 appointments:", appointments);
 
-//======================================
+//====================================================================// 
+ //============    pruebas  llamado a open AI  ======================// 
+
 
 // const openai = new OpenAI();
 // async function main(appointments) {
@@ -435,9 +377,10 @@ app.get("/start", async (req, res) => {
 // });
 
 // ===================      Ruta Chat 2.0     =========================== //
-
+let disable = false
+if (disable===false){
 app.post("/chat", async (req, res) => {
-    const { messages, first_name = "Sebastiansito" } = req.body;
+    const { messages, nombre } = req.body;
     const preguntaUsuario = messages.content;
 
     try {
@@ -454,25 +397,26 @@ app.post("/chat", async (req, res) => {
             messages: [
                 { 
                     role: "system", 
-                    content: `The user's name is ${first_name}. ${appointmentsInfo}` 
+                    content: `The user's name is ${nombre}. and the appointments list is ${appointmentsInfo}` 
                 },
                 {
                     role: "user",
-                    // content: preguntaUsuario,
-                    content: " me podes nobrar los appointments que ya tenes ??"
+                    content: preguntaUsuario,
+                    // content: " me podes nobrar los appointments que ya tenes por favor  ??"
                 },
             ],
         });
 
         res.json({
             respuesta: completion.choices[0].message.content,
+            appointmentsInfo: appointmentsInfo
         });
     } catch (error) {
         console.error("Error in /chat route:", error);
         res.status(500).json({ error: error.message });
     }
 });
-
+}
 //==================   Puerto de escucha  3000  ======= //
 
 const PORT = process.env.PORT || 3000;

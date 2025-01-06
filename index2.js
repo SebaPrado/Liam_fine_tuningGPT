@@ -94,7 +94,7 @@
 //   // Add validation for ManyChat custom fields
 // //   if (thread_id && thread_id.includes("{{")) {
 // //     console.log(req.body);
-// //     console.log("Error: Invalid thread_id format seba"); 
+// //     console.log("Error: Invalid thread_id format seba");
 // //     return res.status(400).json({
 // //       error: "Invalid thread_id format",
 // //       details: "Custom field not properly replaced",
@@ -203,4 +203,70 @@
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port ${PORT}`);
+// });
+
+//======================    respaldo codigo escrito 5/1/2025   =====================//
+
+//  =============       Ruta USER BUSY TIMES para las tres semanas     ===========   //
+
+// var appointments2 = [];
+// let appointments = []; // Array para almacenar todas las citas
+// app.get("/user_busy_times_123Weeks", async (req, res) => {
+//   try {
+//     const user =
+//       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+
+//     // Definir los tiempos de inicio y fin para cada semana
+//     const weeks = [
+//       {
+//         start: new Date(),
+//         end: new Date(new Date().setDate(new Date().getDate() + 7)),
+//       }, // 1st week
+//       {
+//         start: new Date(new Date().setDate(new Date().getDate() + 7)),
+//         end: new Date(new Date().setDate(new Date().getDate() + 14)),
+//       }, // 2nd week
+//       {
+//         start: new Date(new Date().setDate(new Date().getDate() + 14)),
+//         end: new Date(new Date().setDate(new Date().getDate() + 21)),
+//       }, // 3rd week
+//     ];
+
+//     // Llamar a la API para cada semana
+//     for (const week of weeks) {
+//       const response = await axios.get(
+//         "https://api.calendly.com/user_busy_times",
+//         {
+//           params: {
+//             user,
+//             start_time: week.start.toISOString(), // Convertir a ISO string
+//             end_time: week.end.toISOString(), // Convertir a ISO string
+//           },
+//           headers: {
+//             Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+
+//       const collection = response.data.collection;
+
+//       for (let index = 0; index < collection.length; index++) {
+//         const appointment = collection[index];
+//         appointments.push([
+//           { appointment_numero: index },
+//           { startTime: appointment.buffered_start_time },
+//           { endTime: appointment.buffered_end_time },
+//         ]);
+//       }
+//     }
+
+// Devuelve la respuesta al cliente
+//     res.json(appointments);
+
+//     // Manejo de errores
+//   } catch (error) {
+//     console.error("Error al consultar la API de Calendly:", error.message);
+//     res.status(500).json({ error: "Error interno al consultar Calendly" });
+//   }
 // });
