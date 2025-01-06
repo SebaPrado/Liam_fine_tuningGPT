@@ -26,186 +26,8 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 // }
 // initializeAssistant();
 
-//  =============       Ruta USER BUSY TIMES de aca a 21 Dias     ===========   //
-
-// const appointments = [];
-
-// app.get("/user_busy_times_1stWeek", async (req, res) => {
-//   try {
-//     // Define los parámetros de la consulta
-//     const start_time = new Date();
-//     console.log("hoy es : ", start_time);
-//     const end_time = new Date(start_time);
-//     end_time.setDate(start_time.getDate() + 7);
-//     console.log("manana es : ", end_time);
-//     const user =
-//       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-
-//     // const start_time = todaysDate;
-//     // const end_time = end_time;
-
-//     // Realiza la llamada a la API externa usando axios
-//     const response = await axios.get(
-//       "https://api.calendly.com/user_busy_times",
-//       {
-//         params: {
-//           user,
-//           start_time,
-//           end_time,
-//         },
-//         headers: {
-//           Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-//     // Registra la respuesta en la consola
-//     // console.log("Respuesta de Calendly:", response.data);
-//     const collection = response.data.collection;
-//     // console.log("esto es collection : ", collection);
-//     // const appointments = [];
-
-//     for (let index = 0; index < collection.length; index++) {
-//       const appointment = collection[index];
-//       appointments.push([
-//         { appointment_numero: index },
-//         { startTime: appointment.buffered_start_time },
-//         { endTime: appointment.buffered_end_time },
-//       ]);
-//     }
-
-//     // Devuelve la respuesta al cliente
-//     res.json(appointments);
-
-//     // Manejo de errores
-//   } catch (error) {
-//     console.error("Error al consultar la API de Calendly:", error.message);
-//     res.status(500).json({ error: "Error interno al consultar Calendly" });
-//   }
-// });
-// app.get("/user_busy_times_2ndWeek", async (req, res) => {
-//   try {
-//     // Define los parámetros de la consulta
-//     const start_time = new Date();
-//     start_time.setDate(start_time.getDate() + 7); // Cambiado para sumar 7 días
-//     console.log("en siete dias sera : ", start_time);
-//     const end_time = new Date(start_time);
-//     end_time.setDate(start_time.getDate() + 7);
-//     console.log("en 14 dias es : ", end_time);
-//     const user =
-//       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-
-//     // const start_time = todaysDate;
-//     // const end_time = end_time;
-
-//     // Realiza la llamada a la API externa usando axios
-//     const response = await axios.get(
-//       "https://api.calendly.com/user_busy_times",
-//       {
-//         params: {
-//           user,
-//           start_time,
-//           end_time,
-//         },
-//         headers: {
-//           Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-//     // Registra la respuesta en la consola
-//     // console.log("Respuesta de Calendly:", response.data);
-//     const collection = response.data.collection;
-//     // console.log("esto es collection : ", collection);
-//     //   const appointments = [];
-
-//     for (let index = 0; index < collection.length; index++) {
-//       const appointment = collection[index];
-//       appointments.push([
-//         { appointment_numero: index },
-//         { startTime: appointment.buffered_start_time },
-//         { endTime: appointment.buffered_end_time },
-//       ]);
-//     }
-
-//     // Devuelve la respuesta al cliente
-//     res.json(appointments);
-
-//     // Manejo de errores
-//   } catch (error) {
-//     console.error("Error al consultar la API de Calendly:", error.message);
-//     res.status(500).json({ error: "Error interno al consultar Calendly" });
-//   }
-// });
-// app.get("/user_busy_times_3rdWeek", async (req, res) => {
-//   try {
-//     // Define los parámetros de la consulta
-//     const start_time = new Date();
-//     start_time.setDate(start_time.getDate() + 14); // Cambiado para sumar 7 días
-//     console.log("en 14 dias sera : ", start_time);
-//     const end_time = new Date(start_time);
-//     end_time.setDate(start_time.getDate() + 7);
-//     console.log("en 21 dias es : ", end_time);
-//     const user =
-//       "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-
-//     // const start_time = todaysDate;
-//     // const end_time = end_time;
-
-//     // Realiza la llamada a la API externa usando axios
-//     const response = await axios.get(
-//       "https://api.calendly.com/user_busy_times",
-//       {
-//         params: {
-//           user,
-//           start_time,
-//           end_time,
-//         },
-//         headers: {
-//           Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`, // Reemplaza con tu token válido de Calendly
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-//     // Registra la respuesta en la consola
-//     // console.log("Respuesta de Calendly:", response.data);
-//     const collection = response.data.collection;
-//     // console.log("esto es collection : ", collection);
-//     //   const appointments = [];
-
-//     for (let index = 0; index < collection.length; index++) {
-//       const appointment = collection[index];
-//       appointments.push([
-//         { appointment_numero: index },
-//         { startTime: appointment.buffered_start_time },
-//         { endTime: appointment.buffered_end_time },
-//       ]);
-//     }
-
-//    
-// console.log("la variable start fuera de la funcion : ", start_time );
-// console.log("la variable end fuera de la funcion : ", end_time );
-
-
-
-//     // Devuelve la respuesta al cliente
-//     res.json(appointments);
-//     console.log("weeks", weeks);
-//     console.log("array1 appointments:", appointments);
-
-//     // Llama a la función main después de llenar appointments
-//     await main(appointments); // Pasa appointments a la función main
-//   } catch (error) {
-//     console.error("Error al consultar la API de Calendly:", error.message);
-//     res.status(500).json({ error: "Error interno al consultar Calendly" });
-//   }
-// });
-
-// console.log("array2 appointments:", appointments);
-
-//====================================================================// 
- //============    pruebas  llamado a open AI  ======================// 
-
+//====================================================================//
+//============    pruebas  llamado a open AI  ======================//
 
 // const openai = new OpenAI();
 // async function main(appointments) {
@@ -239,17 +61,17 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // This creates our central storage for appointments data
 const AppointmentStore = {
-    appointments: null,
-    setAppointments: function(data) {
-        this.appointments = data;
-    },
-    getAppointments: function() {
-        return this.appointments;
-    }
+  appointments: null,
+  setAppointments: function (data) {
+    this.appointments = data;
+  },
+  getAppointments: function () {
+    return this.appointments;
+  },
 };
 
 //=============================================================//
-    //==================   Ruta START   ===================//
+//==================   Ruta START   ===================//
 
 // app.get("/start", async (req, res) => {
 //   try {
@@ -272,76 +94,157 @@ const AppointmentStore = {
 //==================================================================//
 //==================         Ruta START 2.0     =================  //
 
-app.get("/start", async (req, res) => {
-    try {
-        // First, create the thread as you were doing before
-        const thread = await client.beta.threads.create();
-        console.log("New conversation started with thread ID:", thread.id);
+//============= <>
+class ConversationStore {
+  constructor() {
+    // Usamos el thread.id como clave en lugar del nombre del usuario
+    this.conversations = new Map();
+    // Podemos agregar un mapeo de thread.id a información adicional si es necesario
+    this.threadMetadata = new Map();
+  }
 
-        // Now, let's fetch appointments from Calendly
-        const user = "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
-        const appointments = [];
+  initializeThread(threadId, initialMetadata = {}) {
+    this.conversations.set(threadId, []);
+    this.threadMetadata.set(threadId, {
+      createdAt: new Date(),
+      lastActivity: new Date(),
+      ...initialMetadata,
+    });
+  }
 
-        // We're keeping your three-week structure
-        const weeks = [
-            {
-                start: new Date(),
-                end: new Date(new Date().setDate(new Date().getDate() + 7)),
-            },
-            {
-                start: new Date(new Date().setDate(new Date().getDate() + 7)),
-                end: new Date(new Date().setDate(new Date().getDate() + 14)),
-            },
-            {
-                start: new Date(new Date().setDate(new Date().getDate() + 14)),
-                end: new Date(new Date().setDate(new Date().getDate() + 21)),
-            },
-        ];
-
-        // Fetch appointments for each week
-        for (const week of weeks) {
-        //   const  weeeksIndex = weeks[i]
-            const response = await axios.get(
-                "https://api.calendly.com/user_busy_times",
-                {
-                    params: {
-                        user,
-                        start_time: week.start.toISOString(),
-                        end_time: week.end.toISOString(),
-                    },
-                    headers: {
-                        Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            const collection = response.data.collection;
-            for (let index = 0; index < collection.length; index++) {
-                const appointment = collection[index];
-                appointments.push([
-                    { appointment_numero: index },
-                    { startTime: appointment.buffered_start_time },
-                    { endTime: appointment.buffered_end_time },
-                ]);
-            }
-        }
-
-        // Store the appointments in our AppointmentStore
-        AppointmentStore.setAppointments(appointments);
-
-        // Send back both the thread ID and confirmation that appointments were loaded
-        res.json({ 
-            thread_id: thread.id, 
-            appointments_loaded: true,
-            message: "Conversation started and appointments loaded successfully", 
-            appointments: appointments 
-        });
-
-    } catch (error) {
-        console.error("Error in /start route:", error);
-        res.status(500).json({ error: "Internal server error" });
+  addExchange(threadId, userMessage, gptResponse) {
+    if (!this.conversations.has(threadId)) {
+      // Si por alguna razón el thread no está inicializado, lo hacemos
+      this.initializeThread(threadId);
     }
+
+    const conversation = this.conversations.get(threadId);
+
+    conversation.push({
+      user: userMessage,
+      gpt: gptResponse,
+      timestamp: new Date(),
+    });
+
+    // Actualizamos el timestamp de última actividad
+    this.threadMetadata.get(threadId).lastActivity = new Date();
+
+    // Mantenemos un límite de historial
+    if (conversation.length > 10) {
+      conversation.shift();
+    }
+  }
+
+  getConversation(threadId) {
+    return this.conversations.get(threadId) || [];
+  }
+
+  getFormattedHistory(threadId) {
+    const conversation = this.getConversation(threadId);
+    return conversation.flatMap((exchange) => [
+      { role: "user", content: exchange.user },
+      { role: "assistant", content: exchange.gpt },
+    ]);
+  }
+
+  // Método útil para limpiar conversaciones antiguas
+  cleanup(maxAgeHours = 24) {
+    const now = new Date();
+    for (const [threadId, metadata] of this.threadMetadata.entries()) {
+      const hoursSinceLastActivity =
+        (now - metadata.lastActivity) / (1000 * 60 * 60);
+
+      if (hoursSinceLastActivity > maxAgeHours) {
+        this.conversations.delete(threadId);
+        this.threadMetadata.delete(threadId);
+      }
+    }
+  }
+}
+
+// Creamos una instancia global
+const conversationStore = new ConversationStore();
+// ============= </>
+
+app.get("/start", async (req, res) => {
+  try {
+    // First, create the thread as you were doing before
+    const thread = await client.beta.threads.create();
+    console.log("New conversation started with thread ID:", thread.id);
+
+    //============ <>
+
+    // Inicializamos el almacenamiento para este thread
+    conversationStore.initializeThread(thread.id, {
+      startTime: new Date(),
+    });
+
+    //============ </>
+
+    // Now, let's fetch appointments from Calendly
+    const user =
+      "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
+    const appointments = [];
+
+    // We're keeping your three-week structure
+    const weeks = [
+      {
+        start: new Date(),
+        end: new Date(new Date().setDate(new Date().getDate() + 7)),
+      },
+      {
+        start: new Date(new Date().setDate(new Date().getDate() + 7)),
+        end: new Date(new Date().setDate(new Date().getDate() + 14)),
+      },
+      {
+        start: new Date(new Date().setDate(new Date().getDate() + 14)),
+        end: new Date(new Date().setDate(new Date().getDate() + 21)),
+      },
+    ];
+
+    // Fetch appointments for each week
+    for (const week of weeks) {
+      //   const  weeeksIndex = weeks[i]
+      const response = await axios.get(
+        "https://api.calendly.com/user_busy_times",
+        {
+          params: {
+            user,
+            start_time: week.start.toISOString(),
+            end_time: week.end.toISOString(),
+          },
+          headers: {
+            Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const collection = response.data.collection;
+      for (let index = 0; index < collection.length; index++) {
+        const appointment = collection[index];
+        appointments.push([
+          { appointment_numero: index },
+          { startTime: appointment.buffered_start_time },
+          { endTime: appointment.buffered_end_time },
+        ]);
+      }
+    }
+
+    // Store the appointments in our AppointmentStore
+    AppointmentStore.setAppointments(appointments);
+
+    // Send back both the thread ID and confirmation that appointments were loaded
+    res.json({
+      thread_id: thread.id,
+      appointments_loaded: true,
+      message: "Conversation started and appointments loaded successfully",
+      appointments: appointments,
+    });
+  } catch (error) {
+    console.error("Error in /start route:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // ==================      Ruta CHAT    ================ //
@@ -377,45 +280,49 @@ app.get("/start", async (req, res) => {
 // });
 
 // ===================      Ruta Chat 2.0     =========================== //
-let disable = false
-if (disable===false){
-app.post("/chat", async (req, res) => {
+let disable = false;
+if (disable === false) {
+  app.post("/chat", async (req, res) => {
     const { messages, nombre } = req.body;
     const preguntaUsuario = messages.content;
 
     try {
-        // Get the current appointments from our store
-        const currentAppointments = AppointmentStore.getAppointments();
-        
-        // Format the appointments for the system message
-        const appointmentsInfo = currentAppointments 
-            ? `Available appointment information: ${JSON.stringify(currentAppointments, null, 2)}`
-            : "No appointment information available";
+      // Get the current appointments from our store
+      const currentAppointments = AppointmentStore.getAppointments();
 
-        const completion = await client.chat.completions.create({
-            model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M",
-            messages: [
-                { 
-                    role: "system", 
-                    content: `The user's name is ${nombre}. and the appointments list is ${appointmentsInfo}` 
-                },
-                {
-                    role: "user",
-                    content: preguntaUsuario,
-                    // content: " me podes nobrar los appointments que ya tenes por favor  ??"
-                },
-            ],
-        });
+      // Format the appointments for the system message
+      const appointmentsInfo = currentAppointments
+        ? `Available appointment information: ${JSON.stringify(
+            currentAppointments,
+            null,
+            2
+          )}`
+        : "No appointment information available";
 
-        res.json({
-            respuesta: completion.choices[0].message.content,
-            appointmentsInfo: appointmentsInfo
-        });
+      const completion = await client.chat.completions.create({
+        model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M",
+        messages: [
+          {
+            role: "system",
+            content: `The user's name is ${nombre}. and the appointments list is ${appointmentsInfo}`,
+          },
+          {
+            role: "user",
+            content: preguntaUsuario,
+            // content: " me podes nobrar los appointments que ya tenes por favor  ??"
+          },
+        ],
+      });
+
+      res.json({
+        respuesta: completion.choices[0].message.content,
+        appointmentsInfo: appointmentsInfo,
+      });
     } catch (error) {
-        console.error("Error in /chat route:", error);
-        res.status(500).json({ error: error.message });
+      console.error("Error in /chat route:", error);
+      res.status(500).json({ error: error.message });
     }
-});
+  });
 }
 //==================   Puerto de escucha  3000  ======= //
 
