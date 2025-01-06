@@ -16,6 +16,12 @@ app.use(express.json());
 
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
+// Declarar la variable user aquí para que sea accesible en todo el archivo
+const mesActual = new Date().getMonth() + 1; // Obtener el mes actual (0-11)
+const anoActual = new Date().getFullYear(); // Obtener el año actual
+
+const user = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${anoActual}-${mesActual < 10 ? '0' : ''}${mesActual}`;
+
 // // ==========   2)  Crear o cargar el ID del asistente    =========== //
 
 // let assistant_id; // variable para almacenar el assistant_id
@@ -182,8 +188,6 @@ app.get("/start", async (req, res) => {
     //============ </>
 
     // Now, let's fetch appointments from Calendly
-    const user =
-      "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870";
     const appointments = [];
 
     // We're keeping your three-week structure
@@ -311,7 +315,7 @@ if (disableGPT === false) {
       const messageArray = [
         {
           role: "system",
-          content: `The user's name is ${nombre}. and the appointments list is ${appointmentsInfo}`,
+          content: `El nombre del usuario es ${nombre}. La lista de citas es ${appointmentsInfo}. El enlace que necesitas enviar al usuario para que pueda reservar una cita es ${user}`,
         },
         ...conversationHistory,
         {
@@ -333,6 +337,8 @@ if (disableGPT === false) {
       //   </>
 
       res.json({
+        thread_id: thread_id,
+        user: user,
         respuesta: gptResponse,
         appointmentsInfo: appointmentsInfo,
         conversationHistory: conversationStore.getConversation(thread_id),
