@@ -103,22 +103,22 @@ class ConversationStore {
     this.threadMetadata = new Map();
   }
 
-  initializeThread(threadId, initialMetadata = {}) {
-    this.conversations.set(threadId, []);
-    this.threadMetadata.set(threadId, {
+  initializeThread(thread_id, initialMetadata = {}) {
+    this.conversations.set(thread_id, []);
+    this.threadMetadata.set(thread_id, {
       createdAt: new Date(),
       lastActivity: new Date(),
       ...initialMetadata,
     });
   }
 
-  addExchange(threadId, userMessage, gptResponse) {
-    if (!this.conversations.has(threadId)) {
+  addExchange(thread_id, userMessage, gptResponse) {
+    if (!this.conversations.has(thread_id)) {
       // Si por alguna razón el thread no está inicializado, lo hacemos
-      this.initializeThread(threadId);
+      this.initializeThread(thread_id);
     }
 
-    const conversation = this.conversations.get(threadId);
+    const conversation = this.conversations.get(thread_id);
 
     conversation.push({
       user: userMessage,
@@ -127,7 +127,7 @@ class ConversationStore {
     });
 
     // Actualizamos el timestamp de última actividad
-    this.threadMetadata.get(threadId).lastActivity = new Date();
+    this.threadMetadata.get(thread_id).lastActivity = new Date();
 
     // Mantenemos un límite de historial
     if (conversation.length > 10) {
@@ -135,12 +135,12 @@ class ConversationStore {
     }
   }
 
-  getConversation(threadId) {
-    return this.conversations.get(threadId) || [];
+  getConversation(thread_id) {
+    return this.conversations.get(thread_id) || [];
   }
 
-  getFormattedHistory(threadId) {
-    const conversation = this.getConversation(threadId);
+  getFormattedHistory(thread_id) {
+    const conversation = this.getConversation(thread_id);
     return conversation.flatMap((exchange) => [
       { role: "user", content: exchange.user },
       { role: "assistant", content: exchange.gpt },
@@ -150,13 +150,13 @@ class ConversationStore {
   // Método útil para limpiar conversaciones antiguas
   cleanup(maxAgeHours = 24) {
     const now = new Date();
-    for (const [threadId, metadata] of this.threadMetadata.entries()) {
+    for (const [thread_id, metadata] of this.threadMetadata.entries()) {
       const hoursSinceLastActivity =
         (now - metadata.lastActivity) / (1000 * 60 * 60);
 
       if (hoursSinceLastActivity > maxAgeHours) {
-        this.conversations.delete(threadId);
-        this.threadMetadata.delete(threadId);
+        this.conversations.delete(thread_id);
+        this.threadMetadata.delete(thread_id);
       }
     }
   }
@@ -173,12 +173,10 @@ app.get("/start", async (req, res) => {
     console.log("New conversation started with thread ID:", thread.id);
 
     //============ <>
-
     // Inicializamos el almacenamiento para este thread
     conversationStore.initializeThread(thread.id, {
       startTime: new Date(),
     });
-
     //============ </>
 
     // Now, let's fetch appointments from Calendly
@@ -283,8 +281,12 @@ app.get("/start", async (req, res) => {
 let disable = false;
 if (disable === false) {
   app.post("/chat", async (req, res) => {
-    const { messages, nombre } = req.body;
+    const { messages, nombre, thread_id } = req.body;
     const preguntaUsuario = messages.content;
+
+    if (!thread_id) {
+      return res.status(400).json({ error: "thread_id is required" });
+    }
 
     try {
       // Get the current appointments from our store
@@ -299,30 +301,52 @@ if (disable === false) {
           )}`
         : "No appointment information available";
 
+      //=====   <>
+      // Obtenemos el historial usando el threadId
+      const conversationHistory =
+        conversationStore.getFormattedHistory(thread_id);
+
+      const messageArray = [
+        {
+          role: "system",
+          content: `The user's name is ${nombre}. and the appointments list is ${appointmentsInfo}`,
+        },
+        ...conversationHistory,
+        {
+          role: "user",
+          content: preguntaUsuario,
+        },
+      ];
+      //=====  </>
+
       const completion = await client.chat.completions.create({
         model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M",
-        messages: [
-          {
-            role: "system",
-            content: `The user's name is ${nombre}. and the appointments list is ${appointmentsInfo}`,
-          },
-          {
-            role: "user",
-            content: preguntaUsuario,
-            // content: " me podes nobrar los appointments que ya tenes por favor  ??"
-          },
-        ],
+        messages: messageArray,
       });
 
+      //   <>
+      const gptResponse = completion.choices[0].message.content;
+      // Guardamos el intercambio usando el threadId
+      conversationStore.addExchange(thread_id, preguntaUsuario, gptResponse);
+      //   </>
+
       res.json({
-        respuesta: completion.choices[0].message.content,
+        respuesta: gptResponse,
         appointmentsInfo: appointmentsInfo,
+        conversationHistory: conversationStore.getConversation(thread_id),
       });
     } catch (error) {
       console.error("Error in /chat route:", error);
       res.status(500).json({ error: error.message });
     }
   });
+
+  //==========  <>
+  // Podemos agregar un job de limpieza periódica
+  setInterval(() => {
+    conversationStore.cleanup(24); // Limpia conversaciones inactivas por más de 24 horas
+  }, 1000 * 60 * 60); // Ejecuta cada hora
+  //==========  </>
 }
 //==================   Puerto de escucha  3000  ======= //
 
