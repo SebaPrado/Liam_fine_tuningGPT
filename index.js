@@ -326,7 +326,7 @@ if (disableGPT === false) {
       //=====  </>
 
       const completion = await client.chat.completions.create({
-        model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M",
+        model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:clinica-dental:An70bnWj",
         messages: messageArray,
       });
 
