@@ -20,7 +20,7 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 const mesActual = new Date().getMonth() + 1; // Obtener el mes actual (0-11)
 const anoActual = new Date().getFullYear(); // Obtener el año actual
 
-const user = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${anoActual}-${mesActual < 10 ? '0' : ''}${mesActual}`;
+const userURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${anoActual}-${mesActual < 10 ? '0' : ''}${mesActual}`;
 
 // // ==========   2)  Crear o cargar el ID del asistente    =========== //
 
@@ -315,7 +315,7 @@ if (disableGPT === false) {
       const messageArray = [
         {
           role: "system",
-          content: `El nombre del usuario es ${nombre}. La lista de citas es ${appointmentsInfo}. El enlace que necesitas enviar al usuario para que pueda reservar una cita es ${user}`,
+          content: `El nombre del usuario es ${nombre}. La lista de citas es ${appointmentsInfo}. El enlace que necesitas enviar al usuario para que pueda reservar una cita es ${userURL}`,
         },
         ...conversationHistory,
         {
