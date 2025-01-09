@@ -37,33 +37,33 @@ const userURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=$
 //====================================================================//
 //============    pruebas  llamado a open AI  ======================//
 
-// const openai = new OpenAI();
-// async function main(appointments) {
-//   console.log("hola seba", appointments);
-//   if (!Array.isArray(appointments)) {
-//     throw new Error('Appointments must be an array');
-//   }
+const openai = new OpenAI();
+async function main(appointments) {
+  console.log("hola seba", appointments);
+  if (!Array.isArray(appointments)) {
+    throw new Error('Appointments must be an array');
+  }
 
-//   const formattedAppointments = JSON.stringify(appointments, null, 2);
-//   const stream = await openai.chat.completions.create({
-//     model: "gpt-4o-mini",
-//     messages: [
-//       {
-//         role: "user",
-//         content:
-//           "can you please let me know all the appointmets in the list ?? and also , tell me if you have a spot for the 8/1 at 11 ",
-//       },
-//       {
-//         role: "system",
-//         content: `Here are the already booked appointments so you dont overshchedule: ${formattedAppointments}`,
-//       },
-//     ],
-//     stream: true,
-//   });
-//   for await (const chunk of stream) {
-//     process.stdout.write(chunk.choices[0]?.delta?.content || "");
-//   }
-// }
+  const formattedAppointments = JSON.stringify(appointments, null, 2);
+  const stream = await openai.chat.completions.create({
+    model: "gpt-4o-2024-08-06:futbol",
+    messages: [
+      {
+        role: "user",
+        content:
+          "me decis el horario de las practicas por favor  ",
+      },
+    //   {
+    //     role: "system",
+    //     content: `Here are the already booked appointments so you dont overshchedule: ${formattedAppointments}`,
+    //   },
+    ],
+    stream: true,
+  });
+  for await (const chunk of stream) {
+    process.stdout.write(chunk.choices[0]?.delta?.content || "");
+  }
+}
 
 //==================================================================================//
 
