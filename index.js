@@ -20,7 +20,9 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 const mesActual = new Date().getMonth() + 1; // Obtener el mes actual (0-11)
 const anoActual = new Date().getFullYear(); // Obtener el año actual
 
-const userURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${anoActual}-${mesActual < 10 ? '0' : ''}${mesActual}`;
+const userURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${anoActual}-${
+  mesActual < 10 ? "0" : ""
+}${mesActual}`;
 
 // // ==========   2)  Crear o cargar el ID del asistente    =========== //
 
@@ -173,6 +175,10 @@ const conversationStore = new ConversationStore();
 console.log("conversationStore", conversationStore);
 // ============= </>
 
+/////////////////////////////////                /////////////////////////////////
+///////////////////////////////////   START   ///////////////////////////////////
+////////////////////////////////                //////////////////////////////////
+
 app.get("/start", async (req, res) => {
   try {
     // First, create the thread as you were doing before
@@ -213,8 +219,7 @@ app.get("/start", async (req, res) => {
         "https://api.calendly.com/user_busy_times",
         {
           params: {
-            user,
-            start_time: week.start.toISOString(),
+            user: "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870", // el usuario creado para Sebastian Prado 
             end_time: week.end.toISOString(),
           },
           headers: {
