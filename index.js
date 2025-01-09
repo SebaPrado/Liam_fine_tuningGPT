@@ -212,15 +212,18 @@ app.get("/start", async (req, res) => {
       },
     ];
 
-    // Fetch appointments for each week
+   // Fetch appointments for each week
     for (const week of weeks) {
       //   const  weeeksIndex = weeks[i]
       const response = await axios.get(
         "https://api.calendly.com/user_busy_times",
         {
           params: {
-            user: "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870", // el usuario creado para Sebastian Prado 
-            end_time: week.end.toISOString(),
+            user: "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870", // el usuario creado para Sebastian Prado
+           end_time: week.end.toISOString(),
+           start_time:  week.start.toISOString(),
+        //    start_time : "2025-01-20T00:30:00.000000Z",
+        //    end_time: "2025-01-21T00:30:00.000000Z",
           },
           headers: {
             Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
@@ -240,7 +243,7 @@ app.get("/start", async (req, res) => {
       }
     }
 
-    // Store the appointments in our AppointmentStore
+    //Store the appointments in our AppointmentStore
     AppointmentStore.setAppointments(appointments);
 
     // Send back both the thread ID and confirmation that appointments were loaded
@@ -258,37 +261,40 @@ app.get("/start", async (req, res) => {
 
 // ==================      Ruta CHAT    ================ //
 
-// Definir la ruta POST
-// app.post("/chat", async (req, res) => {
-//   const { messages, first_name } = req.body; // Desestructurar el cuerpo de la solicitud para obtener messages
-//   if (!first_name) {
-//     first_name = "Sebastiansito";
-//   }
-//   const preguntaUsuario = messages.content; // Acceder al contenido del primer mensaje
+//Definir la ruta POST
+app.post("/chaty", async (req, res) => {
+  const { messages, first_name } = req.body; // Desestructurar el cuerpo de la solicitud para obtener messages
+  //   if (!first_name) {
+  //     first_name = "Sebastiansito";
+  //   }
+  //const preguntaUsuario = messages.content; // Acceder al contenido del primer mensaje
 
-//   try {
-//     const completion = await client.chat.completions.create({
-//       model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M", // Tu modelo fine-tuned
-//       messages: [
-//         { role: "system", content: `The user's name is ${first_name}.` },
-//         {
-//           role: "user",
-//           content: preguntaUsuario,
-//         },
-//       ],
-//     });
+  try {
+    const completion = await client.chat.completions.create({
+      model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:clinica-dental:An70bnWj", // Tu modelo fine-tuned
+      messages: [
+        { role: "system", content: `The user's name isvSebastian Prado.` },
+        {
+          role: "user",
+          content: messages.content,
+        },
+      ],
+    });
 
-//     //Enviar la respuesta al cliente
-//     res.json({
-//       respuesta: completion.choices[0].message.content,
-//     });
-//   } catch (error) {
-//     console.error("Error:", error.message);
-//     res.status(500).json({ error: error.message }); // Enviar un error al cliente
-//   }
-// });
+    //Enviar la respuesta al cliente
+    res.json({
+      respuesta: completion.choices[0].message.content,
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: error.message }); // Enviar un error al cliente
+  }
+});
 
-// ===================      Ruta Chat 2.0     =========================== //
+/////////////////////////////////                    /////////////////////////////////
+///////////////////////////////////    CHAT 2.0    ///////////////////////////////////
+////////////////////////////////                    //////////////////////////////////
+
 let disableGPT = false;
 if (disableGPT === false) {
   app.post("/chat", async (req, res) => {
@@ -343,7 +349,7 @@ if (disableGPT === false) {
 
       res.json({
         thread_id: thread_id,
-        user: user,
+        user: nombre,
         respuesta: gptResponse,
         appointmentsInfo: appointmentsInfo,
         conversationHistory: conversationStore.getConversation(thread_id),
