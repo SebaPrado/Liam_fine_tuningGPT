@@ -34,37 +34,6 @@ const userURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=$
 // }
 // initializeAssistant();
 
-//====================================================================//
-//============    pruebas  llamado a open AI  ======================//
-
-const openai = new OpenAI();
-async function main(appointments) {
-  console.log("hola seba", appointments);
-  if (!Array.isArray(appointments)) {
-    throw new Error('Appointments must be an array');
-  }
-
-  const formattedAppointments = JSON.stringify(appointments, null, 2);
-  const stream = await openai.chat.completions.create({
-    model: "gpt-4o-2024-08-06:futbol",
-    messages: [
-      {
-        role: "user",
-        content:
-          "me decis el horario de las practicas por favor  ",
-      },
-    //   {
-    //     role: "system",
-    //     content: `Here are the already booked appointments so you dont overshchedule: ${formattedAppointments}`,
-    //   },
-    ],
-    stream: true,
-  });
-  for await (const chunk of stream) {
-    process.stdout.write(chunk.choices[0]?.delta?.content || "");
-  }
-}
-
 //==================================================================================//
 
 // This creates our central storage for appointments data
@@ -212,7 +181,7 @@ app.get("/start", async (req, res) => {
       },
     ];
 
-   // Fetch appointments for each week
+    // Fetch appointments for each week
     for (const week of weeks) {
       //   const  weeeksIndex = weeks[i]
       const response = await axios.get(
@@ -220,10 +189,10 @@ app.get("/start", async (req, res) => {
         {
           params: {
             user: "https://api.calendly.com/users/02a6492f-deee-4196-bf24-075f4b3c7870", // el usuario creado para Sebastian Prado
-           end_time: week.end.toISOString(),
-           start_time:  week.start.toISOString(),
-        //    start_time : "2025-01-20T00:30:00.000000Z",
-        //    end_time: "2025-01-21T00:30:00.000000Z",
+            end_time: week.end.toISOString(),
+            start_time: week.start.toISOString(),
+            //    start_time : "2025-01-20T00:30:00.000000Z",
+            //    end_time: "2025-01-21T00:30:00.000000Z",
           },
           headers: {
             Authorization: `Bearer ${process.env.CALENDLY_TOKEN_AQUI}`,
