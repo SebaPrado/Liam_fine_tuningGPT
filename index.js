@@ -1,13 +1,15 @@
 //SECCIÓN 1: IMPORTS Y CONFIGURACIÓN INICIAL
 
-require("dotenv").config();
-const ngrok = require("@ngrok/ngrok");
-const axios = require("axios");
-
-const express = require("express");
-const OpenAI = require("openai");
+import dotenv from "dotenv";
+import axios from "axios";
+import express from "express";
+import OpenAI from "openai";
+import ngrok from "@ngrok/ngrok";
 // const functions = require("./functions");
-const { log } = require("console");
+
+dotenv.config(); // Cargar dotenv al inicio
+
+
 
 // Configuración inicial
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
