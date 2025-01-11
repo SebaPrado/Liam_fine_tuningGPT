@@ -88,7 +88,7 @@ async function main() {
 
   const message = await openai.beta.threads.messages.create(thread.id, {
     role: "user",
-    content: "I need to solve the equation `3x + 11 = 14`. Can you help me?",
+    content: "And if I change the number 11 by a 2?",
   });
 
   //===============================================================================//
@@ -107,7 +107,7 @@ async function main() {
   if (run.status === "completed") {
     const messages = await openai.beta.threads.messages.list(run.thread_id);
     for (const message of messages.data.reverse()) {
-      console.log(`${message.role} > ${message.content[0].text.value}`);
+      console.log("el listado de msjs para este thread es: ",`${message.role} > ${message.content[0].text.value}`);
     }
   } else {
     console.log(run.status);
