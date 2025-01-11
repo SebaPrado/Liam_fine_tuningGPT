@@ -240,9 +240,9 @@ app.post("/chaty", async (req, res) => {
 
   try {
     const completion = await client.chat.completions.create({
-      model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:clinica-dental:An70bnWj", // Tu modelo fine-tuned
+      model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org::Ao8E0rhZ", // Tu modelo fine-tuned
       messages: [
-        { role: "system", content: `The user's name isvSebastian Prado.` },
+        { role: "system", content: `The user's name is Sebastian Prado.` },
         {
           role: "user",
           content: messages.content,
@@ -295,8 +295,9 @@ if (disableGPT === false) {
       const messageArray = [
         {
           role: "system",
-          content: `El nombre del usuario es ${nombre}. La lista de citas es ${appointmentsInfo}. El enlace que necesitas enviar al usuario para que pueda reservar una cita es ${userURL}`,
+          content: `Sos un asistente de una clínica dental, y tu objetivo es ayudar a los usuarios a resolver dudas e inducir a que reserven una cita. `,
         },
+        //Tendras un trato personalizado , y cada 2 o 3 mensajes que respondas, incluiras el nombre del paciente, guardado bajo la variable ${nombre}. La lista de citas ya reservadas (por tanto no disponibles para los nuevos clientes)son: ${appointmentsInfo}. El enlace que necesitas enviar al usuario para que pueda reservar una cita es ${userURL}
         ...conversationHistory,
         {
           role: "user",
@@ -306,7 +307,7 @@ if (disableGPT === false) {
       //=====  </>
 
       const completion = await client.chat.completions.create({
-        model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:clinica-dental:An70bnWj",
+        model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org::Ao8E0rhZ",
         messages: messageArray,
       });
 
@@ -315,6 +316,9 @@ if (disableGPT === false) {
       // Guardamos el intercambio usando el threadId
       conversationStore.addExchange(thread_id, preguntaUsuario, gptResponse);
       //   </>
+
+      //   console.log("Nombre del paciente:", nombre);
+      //   console.log("Información de citas:", appointmentsInfo);
 
       res.json({
         thread_id: thread_id,

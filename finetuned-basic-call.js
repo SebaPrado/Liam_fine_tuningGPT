@@ -1,4 +1,5 @@
 const OpenAI = require("openai");
+require("dotenv").config();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -26,15 +27,15 @@ async function basicFineTunedCall() {
           },
         ],
       },
-      {
-        role: "assistant",
-        content: [
-          {
-            type: "text",
-            text: "La clínica está abierta de lunes a viernes, de 9:00 a 18:00 horas.",
-          },
-        ],
-      },
+      //   {
+      //     role: "assistant",
+      //     content: [
+      //       {
+      //         type: "text",
+      //         text: "La clínica está abierta de lunes a viernes, de 9:00 a 18:00 horas.",
+      //       },
+      //     ],
+      //   },
     ],
     response_format: {
       type: "text",
@@ -46,7 +47,11 @@ async function basicFineTunedCall() {
     presence_penalty: 0,
   });
 
-  console.log(response);
+// Op 1) Muestra solo el contenido de la respuesta
+//   console.log(response.choices[0].message.content); 
+
+ //Op 2) Si deseas ver toda la estructura del objeto de respuesta para entender mejor qué contiene, puedes usar:
+  console.log(JSON.stringify(response, null, 2));
 }
 
 basicFineTunedCall();
