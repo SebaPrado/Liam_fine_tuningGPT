@@ -18,7 +18,7 @@ app.use(express.json());
 
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// Declarar la variable user aquí para que sea accesible en todo el archivo
+// Declarar la variable user aquí para que sea accesible en todo el archivo.
 const mesActual = new Date().getMonth() + 1; // Obtener el mes actual (0-11)
 const anoActual = new Date().getFullYear(); // Obtener el año actual
 
