@@ -10,41 +10,41 @@ const openai = new OpenAI();
 /// ========  ⬇  tambien descomentar linea87: await iniciarAsistente();  ⬇  ========= ///
 
 //Guardamos los IDs como variables globales para este ejemplo
-let assistantId;
-let threadId;
+// let assistantId;
+// let threadId;
 
-// Función inicial para crear el asistente y el thread
-async function iniciarAsistente() {
-  // Crear el asistente (solo necesitas hacerlo una vez)
-  const sebasAssistant = await openai.beta.assistants.create({
-    name: "Mad Math Tutor",
-    instructions:
-      "You are a mad math tutor. do not answer questions, send them to study and figure it out by themselves. address the user as Elmatias once every 2 messages( response [0], [2], and so on...).",
-    tools: [{ type: "code_interpreter" }],
-    model: "gpt-4",
-  });
+// // Función inicial para crear el asistente y el thread
+// async function iniciarAsistente() {
+//   // Crear el asistente (solo necesitas hacerlo una vez)
+//   const sebasAssistant = await openai.beta.assistants.create({
+//     name: "Mad Math Tutor",
+//     instructions:
+//       "You are a mad math tutor. do not answer questions, send them to study and figure it out by themselves. address the user as Elmatias once every 2 messages( response [0], [2], and so on...).",
+//     tools: [{ type: "code_interpreter" }],
+//     model: "gpt-4",
+//   });
 
-  // Guardar el ID del asistente
-  assistantId = sebasAssistant.id;
-  console.log("ID del asistente guardado:", assistantId);
+//   // Guardar el ID del asistente
+//   assistantId = sebasAssistant.id;
+//   console.log("ID del asistente guardado:", assistantId);
 
-  // Crear el thread
-  const thread = await openai.beta.threads.create();
+//   // Crear el thread
+//   const thread = await openai.beta.threads.create();
 
-  // Guardar el ID del thread
-  threadId = thread.id;
-  console.log("ID del thread guardado:", threadId);
+//   // Guardar el ID del thread
+//   threadId = thread.id;
+//   console.log("ID del thread guardado:", threadId);
 
-  console.log("datos del asistente ", sebasAssistant);
-}
+//   console.log("datos del asistente ", sebasAssistant);
+// }
 
 //==============================          ⬆️          ================================//
 //====================================================================================//
 
 // Función para enviar un nuevo mensaje usando los IDs guardados
 async function enviarMensaje(contenidoMensaje) {
-  // let threadId = "thread_B73xErVG9HZtcmjZmNmiaPaC";   // comentar si quiero crear un nuevo threadID
-  // let assistantId = "asst_N7V2Ikm0t5yf2fv0Horu4nji";   // comentar si quiero crear un nuevo assistantId
+  let threadId = "thread_B73xErVG9HZtcmjZmNmiaPaC";   // comentar si quiero crear un nuevo threadID
+  let assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0";   // comentar si quiero crear un nuevo assistantId
 
   try {
     // Verificamos que tengamos los IDs necesarios
@@ -93,7 +93,7 @@ async function enviarMensaje(contenidoMensaje) {
 // Función principal para demostrar el uso
 async function main() {
   // Primero iniciamos el asistente (esto solo se hace una vez)
-  await iniciarAsistente();
+//   await iniciarAsistente();
 
   // Primera pregunta
   console.log("\n--- Primera pregunta ---");
@@ -101,11 +101,11 @@ async function main() {
 
   // Segunda pregunta (usando el mismo thread)
   console.log("\n--- Segunda pregunta ---");
-  await enviarMensaje("del uno al diez, que tan malhumorado eres ??");
+  await enviarMensaje("dime el horario del dia viernes ??");
 
   // Tercera pregunta (usando el mismo thread)
   console.log("\n--- tercera pregunta ---");
-  await enviarMensaje("cuanto es 3 por 3");
+  await enviarMensaje("bueno , no podre, asi que ire el dia sabado a las 14hs , esta bien ?");
 }
 
 // Ejecutamos el programa
