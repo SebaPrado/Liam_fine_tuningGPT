@@ -26,14 +26,14 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 let mesActual = new Date().getMonth() + 1; //  mes actual (0-11)
 let añoActual = new Date().getFullYear(); //   año actual
 
-console.log("mes", mesActual);
-console.log("año", añoActual);
+// console.log("mes", mesActual);
+// console.log("año", añoActual);
 
 mesActual = mesActual < 10 ? "0" + mesActual : "" + mesActual;
 console.log("mes corregido", mesActual);
 
 const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${añoActual}-${mesActual}`;
-console.log(CalendlyURL);
+// console.log(CalendlyURL);
 
 //===============================           ⬆️           ======================================//
 //=============================================================================================//
@@ -50,12 +50,15 @@ app.post("/whatsapp", async (req, res) => {
 
       if (whatsapp_id_usuarioDB === whatsapp_Id) {
         let thread_id = usuarioDatabase.Thread_id;
-        console.log(
+        return console.log(
           "4 if)conseguimos el Thread_id del usuario q nos escribio , y es: ",
           thread_id
         );
       } else {
-        console.log("4 else) NO conseguimos el Thread_id del usuario q nos escribio ");
+        console.log("4 else.1) NO conseguimos el Thread_id del usuario q nos escribio ");
+        const thread = await client.beta.threads.create();
+        console.log("4 else.2) Seba: New conversation started with thread ID:", thread.id);
+
       }
     }
     res.json({ message: " funcion whatsapp ", reqBody: req.body });

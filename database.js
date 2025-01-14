@@ -16,13 +16,18 @@ const sql = postgres(connectionString, {
     rejectUnauthorized: false, // Aceptar certificados autofirmados
   },
 });
-
+let  usuarioEspecifico_base_de_datos ;
 const obtenerUsuariosDeBaseDeDatos = async () => {
   try {
     // Consulta los usuarios de la base de datos
+    let whatsapp_ID = 1234567;
     let usuarios_base_de_datos = await sql`SELECT * FROM "Users";`;
+     usuarioEspecifico_base_de_datos = usuarios_base_de_datos.find(user => user.whatsapp_id == whatsapp_ID);
+    console.log( "1)", usuarioEspecifico_base_de_datos );
+    
+
     // console.log("Usuarios obtenidos:", usuarios_base_de_datos);
-    return usuarios_base_de_datos;
+    return usuarioEspecifico_base_de_datos;
   } catch (error) {
     console.error("Error al consultar la tabla Users:", error.message);
   } finally {
@@ -30,10 +35,4 @@ const obtenerUsuariosDeBaseDeDatos = async () => {
   }
 };
 
-(async () => {
-    const usuarios = await obtenerUsuariosDeBaseDeDatos();
-    console.log(usuarios); // Ahora imprimirá los usuarios obtenidos
-  })();
-
-// Exporta la variable (será accesible desde otros módulos)
 export { obtenerUsuariosDeBaseDeDatos };
