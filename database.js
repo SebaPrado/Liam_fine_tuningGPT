@@ -31,4 +31,13 @@ const obtenerUsuariosDeBaseDeDatos = async (whatsapp_ID) => {
   }
 };
 
+const crear_Usuario_en_DB = async (whatsapp_ID) =>{
+    try {
+
+    }
+    catch(error) {
+        console.error("Error al consultar la tabla Users:", error.message);
+      }
+}
+
 export { obtenerUsuariosDeBaseDeDatos };

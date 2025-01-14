@@ -42,8 +42,20 @@ app.post("/whatsapp", async (req, res) => {
   try {
     let whatsapp_Id = req.body.whatsapp_id;
     const usuarioDatabase = await obtenerUsuariosDeBaseDeDatos(whatsapp_Id);
-
+    let user_threadId;
     console.log(" 1) Usuario obtenido:", usuarioDatabase);
+
+    if (usuarioDatabase){
+        console.log("a) existe el usuario , hablemos con nuestro Agent en base al thread_id de nuestro usuario");
+        user_threadId = usuarioDatabase.Thread_id;
+    } else {
+        console.log("b) No existe el usuario , creemos un thread_id nuevo ");
+        
+        // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
+        const thread = await client.beta.threads.create();
+        user_threadId= thread.id
+        
+    }
     // console.log(" 2)whatsapp_id ", whatsapp_Id);
 
     // for (const usuarioDatabase of usuariosDatabase) {
@@ -65,7 +77,8 @@ app.post("/whatsapp", async (req, res) => {
     //}
     res.json({
       message: " funcion whatsapp ",
-      usuarioObtenido: usuarioDatabase,
+      usuario_Obtenido: usuarioDatabase,
+      threadId : user_threadId,
     });
   } catch (error) {
     console.error(error);
