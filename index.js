@@ -63,7 +63,7 @@ app.post("/whatsapp", async (req, res) => {
 
     //   }
     //}
-    res.json({ message: " funcion whatsapp ", reqBody: req.body });
+    res.json({ message: " funcion whatsapp ", usuarioObtenido: usuarioDatabase });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: " Seba: Internal server error" });
