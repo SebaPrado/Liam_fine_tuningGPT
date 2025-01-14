@@ -40,10 +40,10 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 
 app.post("/whatsapp", async (req, res) => {
   try {
-    const usuarioDatabase = await obtenerUsuariosDeBaseDeDatos();
+    let whatsapp_Id = req.body.whatsapp_id;
+    const usuarioDatabase = await obtenerUsuariosDeBaseDeDatos(whatsapp_Id);
 
-    console.log(" 1) Usuarios obtenidos:", usuarioDatabase);
-    // let whatsapp_Id = req.body.whatsapp_id;
+    console.log(" 1) Usuario obtenido:", usuarioDatabase);
     // console.log(" 2)whatsapp_id ", whatsapp_Id);
 
     // for (const usuarioDatabase of usuariosDatabase) {
@@ -63,7 +63,10 @@ app.post("/whatsapp", async (req, res) => {
 
     //   }
     //}
-    res.json({ message: " funcion whatsapp ", usuarioObtenido: usuarioDatabase });
+    res.json({
+      message: " funcion whatsapp ",
+      usuarioObtenido: usuarioDatabase,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: " Seba: Internal server error" });
