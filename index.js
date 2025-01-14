@@ -40,9 +40,24 @@ console.log(CalendlyURL);
 
 app.post("/whatsapp", async (req, res) => {
   try {
-    // console.log("Usuarios obtenidos:", usuariosDatabase);
+    console.log(" 1) Usuarios obtenidos:", usuariosDatabase);
+    let whatsapp_Id = req.body.whatsapp_id;
+    console.log(" 2)whatsapp_id ", whatsapp_Id);
 
-    console.log(req.body);
+    for (const usuarioDatabase of usuariosDatabase) {
+      console.log("3) sebas", usuarioDatabase.whatsapp_id);
+      let whatsapp_id_usuarioDB = usuarioDatabase.whatsapp_id;
+
+      if (whatsapp_id_usuarioDB === whatsapp_Id) {
+        let thread_id = usuarioDatabase.Thread_id;
+        console.log(
+          "4 if)conseguimos el Thread_id del usuario q nos escribio , y es: ",
+          thread_id
+        );
+      } else {
+        console.log("4 else) NO conseguimos el Thread_id del usuario q nos escribio ");
+      }
+    }
     res.json({ message: " funcion whatsapp ", reqBody: req.body });
   } catch (error) {
     console.error(error);
