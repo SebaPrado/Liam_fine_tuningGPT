@@ -7,7 +7,7 @@ import OpenAI from "openai";
 import ngrok, { consoleLog } from "@ngrok/ngrok";
 
 import { obtenerUsuariosDeBaseDeDatos } from "./database.js";
-const usuariosDatabase = await obtenerUsuariosDeBaseDeDatos();
+
 // const functions = require("./functions");
 
 dotenv.config(); // Cargar dotenv al inicio
@@ -40,27 +40,29 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 
 app.post("/whatsapp", async (req, res) => {
   try {
-    console.log(" 1) Usuarios obtenidos:", usuariosDatabase);
-    let whatsapp_Id = req.body.whatsapp_id;
-    console.log(" 2)whatsapp_id ", whatsapp_Id);
+    const usuarioDatabase = await obtenerUsuariosDeBaseDeDatos();
 
-    for (const usuarioDatabase of usuariosDatabase) {
-      console.log("3) sebas", usuarioDatabase.whatsapp_id);
-      let whatsapp_id_usuarioDB = usuarioDatabase.whatsapp_id;
+    console.log(" 1) Usuarios obtenidos:", usuarioDatabase);
+    // let whatsapp_Id = req.body.whatsapp_id;
+    // console.log(" 2)whatsapp_id ", whatsapp_Id);
 
-      if (whatsapp_id_usuarioDB === whatsapp_Id) {
-        let thread_id = usuarioDatabase.Thread_id;
-        return console.log(
-          "4 if)conseguimos el Thread_id del usuario q nos escribio , y es: ",
-          thread_id
-        );
-      } else {
-        console.log("4 else.1) NO conseguimos el Thread_id del usuario q nos escribio ");
-        const thread = await client.beta.threads.create();
-        console.log("4 else.2) Seba: New conversation started with thread ID:", thread.id);
+    // for (const usuarioDatabase of usuariosDatabase) {
+    //   console.log("3) sebas", usuarioDatabase.whatsapp_id);
+    //   let whatsapp_id_usuarioDB = usuarioDatabase.whatsapp_id;
 
-      }
-    }
+    //   if (whatsapp_id_usuarioDB === whatsapp_Id) {
+    //     let thread_id = usuarioDatabase.Thread_id;
+    //     return console.log(
+    //       "4 if)conseguimos el Thread_id del usuario q nos escribio , y es: ",
+    //       thread_id
+    //     );
+    //   } else {
+    //     console.log("4 else.1) NO conseguimos el Thread_id del usuario q nos escribio ");
+    //     const thread = await client.beta.threads.create();
+    //     console.log("4 else.2) Seba: New conversation started with thread ID:", thread.id);
+
+    //   }
+    //}
     res.json({ message: " funcion whatsapp ", reqBody: req.body });
   } catch (error) {
     console.error(error);
@@ -71,23 +73,23 @@ app.post("/whatsapp", async (req, res) => {
 ////=============================================================////
 ////==================  ⬇️  Ruta START 1  ===================////
 
-app.get("/start", async (req, res) => {
-  try {
-    // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
-    const thread = await client.beta.threads.create();
+// app.get("/start", async (req, res) => {
+//   try {
+//     // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
+//     const thread = await client.beta.threads.create();
 
-    // Registra el ID del nuevo thread en la consola
-    console.log("Seba: New conversation started with thread ID:", thread.id);
+//     // Registra el ID del nuevo thread en la consola
+//     console.log("Seba: New conversation started with thread ID:", thread.id);
 
-    // Devuelve el ID del thread al cliente
-    res.json({ thread_id: thread.id, mensaje: "seba" });
+//     // Devuelve el ID del thread al cliente
+//     res.json({ thread_id: thread.id, mensaje: "seba" });
 
-    // Manejo de errores
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: " Seba: Internal server error" });
-  }
-});
+//     // Manejo de errores
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: " Seba: Internal server error" });
+//   }
+// });
 
 //==================  ⬆️  Ruta START 1   =========================//
 //=================================================================//
