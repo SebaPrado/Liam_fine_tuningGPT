@@ -6,7 +6,10 @@ import express from "express";
 import OpenAI from "openai";
 import ngrok, { consoleLog } from "@ngrok/ngrok";
 
-import { obtenerUsuarioDeBaseDeDatos, crear_Usuario_en_DB } from "./database.js";
+import {
+  obtenerUsuarioDeBaseDeDatos,
+  crear_Usuario_en_DB,
+} from "./database.js";
 
 // const functions = require("./functions");
 
@@ -40,47 +43,30 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 
 app.post("/whatsapp", async (req, res) => {
   try {
-    let whatsapp_Id = req.body.whatsapp_id;
-    const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(whatsapp_Id);
+    let whatsapp_Id = req.body.whatsapp_id; // obtencion de whatsapp_id del req.body
+    const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(whatsapp_Id); // buscamos al usuario en la DB
     console.log(" 1) Usuario obtenido:", usuarioDatabase);
-    
+
     let user_threadId;
-    if (usuarioDatabase){
-        console.log("a) existe el usuario , hablemos con nuestro Agent en base al thread_id de nuestro usuario");
-        user_threadId = usuarioDatabase.Thread_id;
+    if (usuarioDatabase) {
+      // si el usuario existe: extraemos su thread_id para su uso....
+      console.log(
+        "a) existe el usuario , hablemos con nuestro Agent en base al thread_id de nuestro usuario"
+      );
+      user_threadId = usuarioDatabase.Thread_id;
     } else {
-        console.log("b) No existe el usuario , creemos un thread_id nuevo ");
+      // si el usuario es nuevo , creamos un thread_id
+      console.log("b) No existe el usuario , creemos un thread_id nuevo ");
 
-        // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
-        const thread = await client.beta.threads.create();
-        user_threadId= thread.id
-        let nuevo_usuario = await crear_Usuario_en_DB(whatsapp_Id ,user_threadId)
-        console.log( "nu:",nuevo_usuario);
-        
+      const thread = await client.beta.threads.create(); // creamos thread en OPEN AI
+      user_threadId = thread.id;
+      let nuevo_usuario = await crear_Usuario_en_DB(whatsapp_Id, user_threadId); // Creamos User en la DB
+      console.log("nu:", nuevo_usuario);
     }
-    // console.log(" 2)whatsapp_id ", whatsapp_Id);
-
-    // for (const usuarioDatabase of usuariosDatabase) {
-    //   console.log("3) sebas", usuarioDatabase.whatsapp_id);
-    //   let whatsapp_id_usuarioDB = usuarioDatabase.whatsapp_id;
-
-    //   if (whatsapp_id_usuarioDB === whatsapp_Id) {
-    //     let thread_id = usuarioDatabase.Thread_id;
-    //     return console.log(
-    //       "4 if)conseguimos el Thread_id del usuario q nos escribio , y es: ",
-    //       thread_id
-    //     );
-    //   } else {
-    //     console.log("4 else.1) NO conseguimos el Thread_id del usuario q nos escribio ");
-    //     const thread = await client.beta.threads.create();
-    //     console.log("4 else.2) Seba: New conversation started with thread ID:", thread.id);
-
-    //   }
-    //}
     res.json({
       message: " funcion whatsapp ",
       usuario_Obtenido: usuarioDatabase,
-      threadId : user_threadId,
+      threadId: user_threadId,
     });
   } catch (error) {
     console.error(error);
