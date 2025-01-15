@@ -23,8 +23,11 @@ app.use(express.json());
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 /// ====================================================================================== //
+/// ====================================================================================== //
 //// ================     ⬇️    Definimos Mes, Año y CalendlyURL     ⬇️     ==================== //
 /// ===================================================================================== //
+/// ====================================================================================== //
+
 
 let mesActual = new Date().getMonth() + 1; //  mes actual (0-11)
 let añoActual = new Date().getFullYear(); //   año actual
@@ -38,45 +41,50 @@ console.log("mes corregido", mesActual);
 const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${añoActual}-${mesActual}`;
 // console.log(CalendlyURL);
 
-//===============================           ⬆️           ======================================//
-//=============================================================================================//
+/// ====================================================================================== //
+/// ====================================================================================== //
+//// =======    ⬇️    menssage.create - runs.create - runs.retrieve    ⬇️     ============ //
+/// ===================================================================================== //
+/// ====================================================================================== //
 
 async function interactuarConNora(threadId, mensaje, assistantId) {
-    // 1. Crear el mensaje en el thread
-    console.log("N) thread id usado con Nora ", threadId);
+  // 1. Crear el mensaje en el thread
+  console.log("N) thread id usado con Nora ", threadId);
 
-    await client.beta.threads.messages.create(threadId, {
-      role: "user",
-      content: mensaje,
-    });
+  await client.beta.threads.messages.create(threadId, {
+    role: "user",
+    content: mensaje,
+  });
 
-    // 2. Ejecutar el assistant
-    const run = await client.beta.threads.runs.create(threadId, {
-      assistant_id: assistantId,
-    });
+  // 2. Ejecutar el assistant
+  const run = await client.beta.threads.runs.create(threadId, {
+    assistant_id: assistantId,
+  });
 
-    // 3. Esperar a que el run se complete
-    let runStatus;
-    do {
-      runStatus = await client.beta.threads.runs.retrieve(threadId, run.id);
-      if (runStatus.status === "failed") {
-        throw new Error("La ejecución falló");
-      }
-      if (runStatus.status !== "completed") {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Esperar 1 segundo
-      }
-    } while (runStatus.status !== "completed");
+  // 3. Esperar a que el run se complete
+  let runStatus;
+  do {
+    runStatus = await client.beta.threads.runs.retrieve(threadId, run.id);
+    if (runStatus.status === "failed") {
+      throw new Error("La ejecución falló");
+    }
+    if (runStatus.status !== "completed") {
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Esperar 1 segundo
+    }
+  } while (runStatus.status !== "completed");
 
-    // 4. Obtener los mensajes más recientes
-    const messages = await client.beta.threads.messages.list(threadId);
+  // 4. Obtener los mensajes más recientes
+  const messages = await client.beta.threads.messages.list(threadId);
 
-    // 5. El mensaje más reciente (el primero en la lista) será la respuesta del assistant
-    return messages.data[0].content[0].text.value;
-  }
-    // ===================================================================================================//
+  // 5. El mensaje más reciente (el primero en la lista) será la respuesta del assistant
+  return messages.data[0].content[0].text.value;
+}
+// ===================================================================================================//
 
 app.post("/whatsapp", async (req, res) => {
   try {
+    let mensaje = req.body.messages.content
+
     let whatsapp_Id = req.body.whatsapp_id; // obtencion de whatsapp_id del req.body
     const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(whatsapp_Id); // buscamos al usuario en la DB
     console.log(" 1) Usuario obtenido:", usuarioDatabase);
@@ -97,7 +105,7 @@ app.post("/whatsapp", async (req, res) => {
       let nuevo_usuario = await crear_Usuario_en_DB(whatsapp_Id, user_threadId); // Creamos User en la DB
       console.log("nu:", nuevo_usuario);
     }
-    
+
     // Interactuar con Nora
     const respuestaNora = await interactuarConNora(
       user_threadId,
@@ -107,8 +115,8 @@ app.post("/whatsapp", async (req, res) => {
     // ===================================================================================================//
     res.json({
       status: "success",
+      mensaje_nora: respuestaNora,
       data: {
-        mensaje_nora: respuestaNora,
         detalles_usuario: {
           whatsapp_id: whatsapp_Id,
           thread_id: user_threadId,
