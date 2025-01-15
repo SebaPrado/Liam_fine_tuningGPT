@@ -23,7 +23,7 @@ app.use(express.json());
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 /// ====================================================================================== //
-//// ================         Definimos Mes, Año y CalendlyURL          ==================== //
+//// ================     ⬇️    Definimos Mes, Año y CalendlyURL     ⬇️     ==================== //
 /// ===================================================================================== //
 
 let mesActual = new Date().getMonth() + 1; //  mes actual (0-11)
@@ -40,6 +40,40 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 
 //===============================           ⬆️           ======================================//
 //=============================================================================================//
+
+async function interactuarConNora(threadId, mensaje, assistantId) {
+    // 1. Crear el mensaje en el thread
+    console.log("N) thread id usado con Nora ", threadId);
+
+    await client.beta.threads.messages.create(threadId, {
+      role: "user",
+      content: mensaje,
+    });
+
+    // 2. Ejecutar el assistant
+    const run = await client.beta.threads.runs.create(threadId, {
+      assistant_id: assistantId,
+    });
+
+    // 3. Esperar a que el run se complete
+    let runStatus;
+    do {
+      runStatus = await client.beta.threads.runs.retrieve(threadId, run.id);
+      if (runStatus.status === "failed") {
+        throw new Error("La ejecución falló");
+      }
+      if (runStatus.status !== "completed") {
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Esperar 1 segundo
+      }
+    } while (runStatus.status !== "completed");
+
+    // 4. Obtener los mensajes más recientes
+    const messages = await client.beta.threads.messages.list(threadId);
+
+    // 5. El mensaje más reciente (el primero en la lista) será la respuesta del assistant
+    return messages.data[0].content[0].text.value;
+  }
+    // ===================================================================================================//
 
 app.post("/whatsapp", async (req, res) => {
   try {
@@ -63,10 +97,24 @@ app.post("/whatsapp", async (req, res) => {
       let nuevo_usuario = await crear_Usuario_en_DB(whatsapp_Id, user_threadId); // Creamos User en la DB
       console.log("nu:", nuevo_usuario);
     }
+    
+    // Interactuar con Nora
+    const respuestaNora = await interactuarConNora(
+      user_threadId,
+      mensaje,
+      "asst_sBmjedCg1l72PZtXnJWN7Jk0" // El ID de Nora
+    );
+    // ===================================================================================================//
     res.json({
-      message: " funcion whatsapp ",
-      usuario_Obtenido: usuarioDatabase,
-      threadId: user_threadId,
+      status: "success",
+      data: {
+        mensaje_nora: respuestaNora,
+        detalles_usuario: {
+          whatsapp_id: whatsapp_Id,
+          thread_id: user_threadId,
+          datos_usuario: usuarioDatabase,
+        },
+      },
     });
   } catch (error) {
     console.error(error);
@@ -75,28 +123,6 @@ app.post("/whatsapp", async (req, res) => {
 });
 
 ////=============================================================////
-////==================  ⬇️  Ruta START 1  ===================////
-
-// app.get("/start", async (req, res) => {
-//   try {
-//     // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
-//     const thread = await client.beta.threads.create();
-
-//     // Registra el ID del nuevo thread en la consola
-//     console.log("Seba: New conversation started with thread ID:", thread.id);
-
-//     // Devuelve el ID del thread al cliente
-//     res.json({ thread_id: thread.id, mensaje: "seba" });
-
-//     // Manejo de errores
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: " Seba: Internal server error" });
-//   }
-// });
-
-//==================  ⬆️  Ruta START 1   =========================//
-//=================================================================//
 
 //This creates our central storage for appointments data
 // const AppointmentStore = {
