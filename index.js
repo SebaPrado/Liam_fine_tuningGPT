@@ -6,7 +6,7 @@ import express from "express";
 import OpenAI from "openai";
 import ngrok, { consoleLog } from "@ngrok/ngrok";
 
-import { obtenerUsuariosDeBaseDeDatos } from "./database.js";
+import { obtenerUsuarioDeBaseDeDatos, crear_Usuario_en_DB } from "./database.js";
 
 // const functions = require("./functions");
 
@@ -41,19 +41,21 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 app.post("/whatsapp", async (req, res) => {
   try {
     let whatsapp_Id = req.body.whatsapp_id;
-    const usuarioDatabase = await obtenerUsuariosDeBaseDeDatos(whatsapp_Id);
-    let user_threadId;
+    const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(whatsapp_Id);
     console.log(" 1) Usuario obtenido:", usuarioDatabase);
-
+    
+    let user_threadId;
     if (usuarioDatabase){
         console.log("a) existe el usuario , hablemos con nuestro Agent en base al thread_id de nuestro usuario");
         user_threadId = usuarioDatabase.Thread_id;
     } else {
         console.log("b) No existe el usuario , creemos un thread_id nuevo ");
-        
+
         // Crea un nuevo "thread" (hilo de conversación) usando la API de OpenAI
         const thread = await client.beta.threads.create();
         user_threadId= thread.id
+        let nuevo_usuario = await crear_Usuario_en_DB(whatsapp_Id ,user_threadId)
+        console.log( "nu:",nuevo_usuario);
         
     }
     // console.log(" 2)whatsapp_id ", whatsapp_Id);

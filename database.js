@@ -18,7 +18,8 @@ const sql = postgres(connectionString, {
 });
 
 let usuarioEspecifico_base_de_datos;
-const obtenerUsuariosDeBaseDeDatos = async (whatsapp_ID) => {
+
+const obtenerUsuarioDeBaseDeDatos = async (whatsapp_ID) => {
   try {
     let usuarios_base_de_datos = await sql`SELECT * FROM "Users";`;
     usuarioEspecifico_base_de_datos = usuarios_base_de_datos.find(
@@ -31,13 +32,28 @@ const obtenerUsuariosDeBaseDeDatos = async (whatsapp_ID) => {
   }
 };
 
-const crear_Usuario_en_DB = async (whatsapp_ID) =>{
-    try {
+const crear_Usuario_en_DB = async (whatsapp_ID, Thread_id) => {
+  try {
+    let usuarioExistente = await obtenerUsuarioDeBaseDeDatos(whatsapp_ID);
 
+    if (usuarioExistente) {
+      console.log("El usuario ya existe en la base de datos.");
+      return usuarioExistente;
     }
-    catch(error) {
-        console.error("Error al consultar la tabla Users:", error.message);
-      }
-}
 
-export { obtenerUsuariosDeBaseDeDatos };
+    let nuevoUsuario = await sql`
+      INSERT INTO "Users" ("whatsapp_id", "Thread_id") 
+      VALUES (${whatsapp_ID}, ${Thread_id}) 
+      RETURNING *;
+    `;
+
+    console.log("Usuario creado exitosamente:", nuevoUsuario[0]);
+    return nuevoUsuario[0];
+  } catch (error) {
+    console.error("Error al consultar la tabla Users:", error.message);
+  }
+};
+
+// crear_Usuario_en_DB(999990, 88888);
+
+export { obtenerUsuarioDeBaseDeDatos, crear_Usuario_en_DB };
