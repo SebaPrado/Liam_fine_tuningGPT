@@ -3,7 +3,7 @@ dotenv.config();
 const openai = new OpenAI();
 import OpenAI from "openai";
 
-let sebasAssistant;
+//let sebasAssistant;
 
 async function main() {
     
@@ -11,39 +11,45 @@ async function main() {
   // =======================       Crear un asistente       =======================//
   //================================================================================//
 
-  sebasAssistant = await openai.beta.assistants.create({
-    name: "Math Tutor",
-    instructions:
-      "You are a personal math tutor. Write and run code to answer math questions.",
-    tools: [{ type: "code_interpreter" }],
-    model: "gpt-4o",
-  });
-  console.log("sebasAssistant es : ", sebasAssistant);
+//   sebasAssistant = await openai.beta.assistants.create({
+//     name: "Math Tutor",
+//     instructions:
+//       "You are a personal math tutor. Write and run code to answer math questions.",
+//     tools: [{ type: "code_interpreter" }],
+//     model: "gpt-4o",
+//   });
+//   console.log("sebasAssistant es : ", sebasAssistant);
 
   //================================================================================//
   // ======================         Crear un hilo        =========================//
   //================================================================================//
 
+  console.log(".. 1)..");
   const thread = await openai.beta.threads.create();
+  console.log(".. 2)..");
 
   //================================================================================//
   // =================       Agregar un mensaje al hilo        ====================//
   //================================================================================//
 
-  const SebasNewThread = await openai.beta.threads.messages.create(thread.id, {
+  console.log(".. 3)..");
+
+  const SebasNewMesagge = await openai.beta.threads.messages.create(thread.id, {
     role: "user",
-    content: " cuanto es x , si la ecuacion es 2x + 10 = 20 ?",
+    content: " me podes decir donde queda la clinica ???",
   });
-  console.log("SebasNewThread es : ", SebasNewThread);
+  console.log(" 4) message: ", SebasNewMesagge);
 
   //===============================================================================//
   // ====================         Crear una ejecución          ====================//
   //===============================================================================//
 
+  console.log(".. 5)..");
+
   let run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-    assistant_id: sebasAssistant.id,
-    instructions: "Please address the user as Elmatias..",
+    assistant_id: "asst_sBmjedCg1l72PZtXnJWN7Jk0"
   });
+  console.log(".. 6)..");
 
   //=====================================================================================================//
   // Una vez que la ejecución se completa, puedes listar los mensajes añadidos al hilo por el asistente  //

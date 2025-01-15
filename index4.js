@@ -43,8 +43,8 @@ const openai = new OpenAI();
 
 // Función para enviar un nuevo mensaje usando los IDs guardados
 async function enviarMensaje(contenidoMensaje) {
-  let threadId = "thread_B73xErVG9HZtcmjZmNmiaPaC";   // comentar si quiero crear un nuevo threadID
-  let assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0";   // comentar si quiero crear un nuevo assistantId
+  let threadId = "thread_VMbRb6IhXLZQfCO3UBNo6zIu"; // comentar si quiero crear un nuevo threadID
+  let assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0"; // comentar si quiero crear un nuevo assistantId
 
   try {
     // Verificamos que tengamos los IDs necesarios
@@ -68,22 +68,32 @@ async function enviarMensaje(contenidoMensaje) {
     // Crear una nueva ejecución
     let run = await openai.beta.threads.runs.createAndPoll(threadId, {
       assistant_id: assistantId,
-    //   instructions:
-    //      "to every question, you answer 'thats private information, and you know it..'  '",
-
+      //   instructions:
+      //      "to every question, you answer 'thats private information, and you know it..'  '",
     });
 
     // Obtener la respuesta si la ejecución se completó
     if (run.status === "completed") {
       const messages = await openai.beta.threads.messages.list(threadId);
 
+      const lastMessage = messages.data[messages.data.length - 1];
+
+      // Verificar que el mensaje tenga contenido antes de acceder
+      if (lastMessage && lastMessage.content.length > 0) {
+        console.log("Último mensaje:", lastMessage.content[0].text.value);
+      } else {
+        console.log("El último mensaje no tiene contenido.");
+      }
+
+      //   console.log( "sebote", messages.data.content[0]);
+
       // Mostramos los mensajes
-      messages.data.reverse().forEach((message) => {
-        console.log(
-          "cuando status=completed",
-          `${message.role} > ${message.content[0].text.value}`
-        );
-      });
+      //   messages.data.reverse().forEach((message) => {
+      //     console.log(
+      //       "cuando status=completed",
+      //       `${message.role[0]} > ${message.content[0].text.value}`
+      //     );
+      //   });
     }
   } catch (error) {
     console.error("Error al enviar mensaje:", error);
@@ -93,19 +103,19 @@ async function enviarMensaje(contenidoMensaje) {
 // Función principal para demostrar el uso
 async function main() {
   // Primero iniciamos el asistente (esto solo se hace una vez)
-//   await iniciarAsistente();
+  //   await iniciarAsistente();
 
   // Primera pregunta
   console.log("\n--- Primera pregunta ---");
   await enviarMensaje("hola asistente , quien eres ?? ");
 
   // Segunda pregunta (usando el mismo thread)
-  console.log("\n--- Segunda pregunta ---");
-  await enviarMensaje("dime el horario del dia viernes ??");
+  //   console.log("\n--- Segunda pregunta ---");
+  //   await enviarMensaje("dime el horario del dia viernes ??");
 
   // Tercera pregunta (usando el mismo thread)
-  console.log("\n--- tercera pregunta ---");
-  await enviarMensaje("bueno , no podre, asi que ire el dia sabado a las 14hs , esta bien ?");
+  //   console.log("\n--- tercera pregunta ---");
+  //   await enviarMensaje("bueno , no podre, asi que ire el dia sabado a las 14hs , esta bien ?");
 }
 
 // Ejecutamos el programa
