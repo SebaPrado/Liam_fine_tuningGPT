@@ -28,7 +28,6 @@ const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 /// ===================================================================================== //
 /// ====================================================================================== //
 
-
 let mesActual = new Date().getMonth() + 1; //  mes actual (0-11)
 let añoActual = new Date().getFullYear(); //   año actual
 
@@ -36,7 +35,7 @@ let añoActual = new Date().getFullYear(); //   año actual
 // console.log("año", añoActual);
 
 mesActual = mesActual < 10 ? "0" + mesActual : "" + mesActual;
-console.log("mes corregido", mesActual);
+console.log("1 mes corregido", mesActual);
 
 const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${añoActual}-${mesActual}`;
 // console.log(CalendlyURL);
@@ -46,50 +45,64 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 //// =======    ⬇️    menssage.create - runs.create - runs.retrieve    ⬇️     ============ //
 /// ===================================================================================== //
 /// ====================================================================================== //
+// async function main() {
+//   try {
+//     async function interactuarConNora(threadId, mensaje, assistantId) {
+//       // 1. Crear el mensaje en el thread
+//       console.log("N) thread id usado con Nora ", threadId);
 
-async function interactuarConNora(threadId, mensaje, assistantId) {
-  // 1. Crear el mensaje en el thread
-  console.log("N) thread id usado con Nora ", threadId);
+//       await client.beta.threads.messages.create(threadId, {
+//         role: "user",
+//         content: mensaje,
+//       });
 
-  await client.beta.threads.messages.create(threadId, {
-    role: "user",
-    content: mensaje,
-  });
+//       // 2. Ejecutar el assistant
+//       const run = await client.beta.threads.runs.create(threadId, {
+//         assistant_id: assistantId,
+//       });
 
-  // 2. Ejecutar el assistant
-  const run = await client.beta.threads.runs.create(threadId, {
-    assistant_id: assistantId,
-  });
+//       // 3. Esperar a que el run se complete
+//       let runStatus;
+//       do {
+//         runStatus = await client.beta.threads.runs.retrieve(threadId, run.id);
+//         if (runStatus.status === "failed") {
+//           throw new Error("La ejecución falló");
+//         }
+//         if (runStatus.status !== "completed") {
+//           await new Promise((resolve) => setTimeout(resolve, 1000)); // Esperar 1 segundo
+//         }
+//       } while (runStatus.status !== "completed");
 
-  // 3. Esperar a que el run se complete
-  let runStatus;
-  do {
-    runStatus = await client.beta.threads.runs.retrieve(threadId, run.id);
-    if (runStatus.status === "failed") {
-      throw new Error("La ejecución falló");
-    }
-    if (runStatus.status !== "completed") {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Esperar 1 segundo
-    }
-  } while (runStatus.status !== "completed");
+//       // 4. Obtener los mensajes más recientes
+//       const messages = await client.beta.threads.messages.list(threadId);
 
-  // 4. Obtener los mensajes más recientes
-  const messages = await client.beta.threads.messages.list(threadId);
+//       // 5. El mensaje más reciente (el primero en la lista) será la respuesta del assistant
+//       return messages.data[0].content[0].text.value;
+//     }
+//     let threadId = "thread_te0THOv5OO57xnDcA8Hb5O0K";
+//     let assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0";
+//     let mensaje = " que hora abren los sabados ?";
 
-  // 5. El mensaje más reciente (el primero en la lista) será la respuesta del assistant
-  return messages.data[0].content[0].text.value;
-}
+//     const respuesta = await interactuarConNora(threadId, mensaje, assistantId);
+//     console.log("respuesta de nora: ", respuesta);
+//   } catch (error) {
+//     console.error("Error en la ejecución principal:", error);
+//   }
+// }
+
+// main();
 // ===================================================================================================//
 
 app.post("/whatsapp", async (req, res) => {
   try {
-    let mensaje = req.body.messages.content
-
+    let mensaje = req.body.messages.content;
     let whatsapp_Id = req.body.whatsapp_id; // obtencion de whatsapp_id del req.body
+    let user_threadId;
+    let assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0";
+
     const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(whatsapp_Id); // buscamos al usuario en la DB
     console.log(" 1) Usuario obtenido:", usuarioDatabase);
 
-    let user_threadId;
     if (usuarioDatabase) {
       // si el usuario existe: extraemos su thread_id para su uso....
       console.log(
@@ -105,6 +118,68 @@ app.post("/whatsapp", async (req, res) => {
       let nuevo_usuario = await crear_Usuario_en_DB(whatsapp_Id, user_threadId); // Creamos User en la DB
       console.log("nu:", nuevo_usuario);
     }
+
+    //=============================================================================================//
+
+    async function interactuarConNora(user_threadId, mensaje, assistantId) {
+      // 1. Crear el mensaje en el thread
+      // console.log("N) thread id usado con Nora ", user_threadId);
+      // console.log("a)", user_threadId ,"b)", mensaje, "c)", assistantId);
+
+      console.log("...Nora1...");
+
+      await client.beta.threads.messages.create(user_threadId, {
+        role: "user",
+        content: mensaje,
+      });
+
+      console.log("...Nora 2...");
+
+      // 2. Ejecutar el assistant
+      const run = await client.beta.threads.runs.create(user_threadId, {
+        assistant_id: assistantId,
+      });
+      console.log("...run id es : ",run.id);
+      console.log("...run es : ",run);
+
+      
+      console.log("...Nora 3...");
+/////////////////////////////////////////////////////////////////////////////////////////
+      // 3. Esperar a que el run se complete
+    //   let runStatus;
+    //   do {
+    //     runStatus = await client.beta.threads.runs.retrieve(
+    //       user_threadId,
+    //       run.id
+    //     );
+    //     if (runStatus.status === "failed") {
+    //       throw new Error("La ejecución falló");
+    //     }
+    //     if (runStatus.status !== "completed") {
+    //       await new Promise((resolve) => setTimeout(resolve, 1000)); // Esperar 1 segundo
+    //     }
+    //   } while (runStatus.status !== "completed");
+
+      console.log("...Nora 4...");
+
+      // 4. Obtener los mensajes más recientes
+      const messages = await client.beta.threads.messages.list(user_threadId);
+
+      console.log("...Nora 5...");
+
+      // 5. El mensaje más reciente (el primero en la lista) será la respuesta del assistant
+      return messages.data[0].content[0].text.value;
+    }
+
+    console.log("...Nora 6...");
+
+    const respuesta = await interactuarConNora(
+      user_threadId,
+      mensaje,
+      assistantId
+    );
+    console.log("respuesta de nora: ", respuesta);
+    //=============================================================================================//
 
     // Interactuar con Nora
     const respuestaNora = await interactuarConNora(

@@ -80,7 +80,11 @@ async function enviarMensaje(contenidoMensaje) {
 
       // Verificar que el mensaje tenga contenido antes de acceder
       if (lastMessage && lastMessage.content.length > 0) {
-        console.log("Último mensaje:", lastMessage.content[0].text.value);
+        // console.log("Último mensaje:", lastMessage.content[0].text.value);
+        console.log("mensajes data [0]:", messages.data[0].content[0].text.value);
+        console.log("largo de mensajes:", messages.data);
+        
+        
       } else {
         console.log("El último mensaje no tiene contenido.");
       }
