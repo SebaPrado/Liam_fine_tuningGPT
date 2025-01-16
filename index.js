@@ -201,7 +201,7 @@ app.post("/whatsapp", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: " Seba: Internal server error" });
+    res.status(500).json({ error: " Sebas: Internal server error" });
   }
 });
 
