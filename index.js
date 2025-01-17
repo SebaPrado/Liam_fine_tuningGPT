@@ -125,8 +125,8 @@ app.post("/whatsapp", async (req, res) => {
       assistant_id: assistantId,
     });
 
-    console.log("Iniciando retraso de 4 segundos");
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    console.log("Iniciando retraso de 3 segundos");
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     console.log("Retraso completado, enviando respuesta");
 
     res.json({
@@ -143,22 +143,21 @@ app.post("/whatsapp", async (req, res) => {
 // Segunda ruta - Verifica el estado
 app.post("/check", async (req, res) => {
   console.log("arranco /check");
+
   try {
     const { runId, threadId } = req.body;
     console.log("runId :", runId, "threadId :", threadId);
 
     // Obtener estado del run
-    const runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
+    let runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
 
     if (runStatus.status === "completed") {
-      // Si está completo, obtener la respuesta
       const messages = await client.beta.threads.messages.list(threadId);
-
       const respuesta = messages.data[0].content[0].text.value;
 
-      console.log("...respuesta.. ", respuesta);
+      console.log("...respuesta 'completed'.. ", respuesta);
 
-      res.json({
+      return res.json({
         status: "completed",
         respuesta: respuesta,
       });
@@ -169,14 +168,56 @@ app.post("/check", async (req, res) => {
         error: "La ejecución falló",
       });
     } else {
-      console.log("...respuesta.. ", respuesta);
+      console.log("...respuesta 'else'.. ", respuesta);
 
-      res.json({
-        status: "processing",
-        respuesta: "processing status",
-        message: "Aún procesando",
-      });
+      console.log("Iniciando 2o retraso de 3 segundos");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      console.log("Retraso completado, enviando respuesta");
+
+      //   res.json({
+      //     status: "processing",
+      //     respuesta: "processing status",
+      //     message: "Aún procesando",
+      //   });
     }
+     console.log("corriendo runStatus por 2a vez...");
+     let runStatus2 = await client.beta.threads.runs.retrieve(threadId, runId);
+     console.log("termino de correr runStatus por 2a vez...");
+
+
+     if (runStatus2.status === "completed") {
+        // Si está completo, obtener la respuesta
+        const messages = await client.beta.threads.messages.list(threadId);
+  
+        const respuesta = messages.data[0].content[0].text.value;
+  
+        console.log("...2a respuesta 'completed'.. ", respuesta);
+  
+        res.json({
+          status: "completed",
+          respuesta: respuesta,
+        });
+      } else if (runStatus2.status === "failed") {
+        res.json({
+          status: "failed",
+          respuesta: "failed status",
+          error: "La ejecución falló",
+        });
+      } else {
+        console.log("...2a respuesta 'else'.. ", respuesta);
+  
+        console.log("Iniciando 3o retraso de 3 segundos");
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        console.log("Retraso completado, enviando respuesta");
+  
+          res.json({
+            status: "processing",
+            respuesta: "processing status",
+            message: "Aún procesando",
+          });
+      }
+
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
