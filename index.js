@@ -125,20 +125,11 @@ app.post("/whatsapp", async (req, res) => {
       assistant_id: assistantId,
     });
 
-    // Guardar información necesaria para el checkeo
-    // const processingData = {
-    //   runId: run.id,
-    //   threadId: user_threadId,
-    //   whatsappId: whatsapp_Id,
-    // };
-
-    // Responder inmediatamente (dentro de los 10 segundos)
     res.json({
       status: "processing",
       checkEndpoint: "/check",
       processing_Run_Id: run.id,
       threadId: user_threadId
-    //   mensaje: mensaje
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
