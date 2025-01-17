@@ -95,8 +95,8 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 
 // Primera ruta - Inicia el proceso
 app.post("/whatsapp", async (req, res) => {
-    console.log("arranco /whatapp");
-    
+  console.log("arranco /whatapp");
+
   try {
     const mensaje = req.body.messages.content;
     const whatsapp_Id = req.body.whatsapp_id;
@@ -116,20 +116,24 @@ app.post("/whatsapp", async (req, res) => {
 
     //  Crear el mensaje en el thread antes de iniciar el run
     await client.beta.threads.messages.create(user_threadId, {
-        role: "user",
-        content: mensaje
-      });
+      role: "user",
+      content: mensaje,
+    });
 
     // Iniciar el proceso con OpenAI pero NO esperar a que termine
     const run = await client.beta.threads.runs.create(user_threadId, {
       assistant_id: assistantId,
     });
 
+    console.log("Iniciando retraso de 4 segundos");
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    console.log("Retraso completado, enviando respuesta");
+
     res.json({
       status: "processing",
       checkEndpoint: "/check",
       processing_Run_Id: run.id,
-      threadId: user_threadId
+      threadId: user_threadId,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -138,22 +142,22 @@ app.post("/whatsapp", async (req, res) => {
 
 // Segunda ruta - Verifica el estado
 app.post("/check", async (req, res) => {
-    console.log("arranco /check");
+  console.log("arranco /check");
   try {
     const { runId, threadId } = req.body;
-    console.log( "runId :",runId, "threadId :", threadId);
-    
+    console.log("runId :", runId, "threadId :", threadId);
+
     // Obtener estado del run
     const runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
 
     if (runStatus.status === "completed") {
       // Si está completo, obtener la respuesta
       const messages = await client.beta.threads.messages.list(threadId);
-      
+
       const respuesta = messages.data[0].content[0].text.value;
-      
+
       console.log("...respuesta.. ", respuesta);
-      
+
       res.json({
         status: "completed",
         respuesta: respuesta,
