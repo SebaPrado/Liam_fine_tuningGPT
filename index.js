@@ -1,7 +1,6 @@
 //SECCIÓN 1: IMPORTS Y CONFIGURACIÓN INICIAL
 
 import dotenv from "dotenv";
-import axios from "axios";
 import express from "express";
 import OpenAI from "openai";
 import ngrok from "@ngrok/ngrok";
@@ -10,6 +9,7 @@ import {
   obtenerUsuarioDeBaseDeDatos,
   crear_Usuario_en_DB,
 } from "./database.js";
+import { incrementCounter } from "./functions/incrementCounter.js";
 
 // const functions = require("./functions");
 
@@ -96,6 +96,8 @@ const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&mon
 // Primera ruta - Inicia el proceso
 app.post("/whatsapp", async (req, res) => {
   console.log("arranco /whatapp");
+  let count;
+  console.log("count", count);
 
   try {
     const mensaje = req.body.messages.content;
@@ -109,6 +111,8 @@ app.post("/whatsapp", async (req, res) => {
 
     if (usuarioDatabase) {
       user_threadId = usuarioDatabase.Thread_id;
+      count = usuarioDatabase.numero_de_interacciones;
+      console.log("numero_de_interacciones:", count);
     } else {
       const thread = await client.beta.threads.create();
       user_threadId = thread.id;
@@ -118,10 +122,12 @@ app.post("/whatsapp", async (req, res) => {
     //  Crear el mensaje en el thread antes de iniciar el run
     await client.beta.threads.messages.create(user_threadId, {
       role: "user",
-      content: `[Nombre del paciente: ${nombrePaciente}] ${mensaje}`,
+      content: `[Nombre del paciente: ${nombrePaciente}][Enlace para agendar consulta : ${CalendlyURL}] [Mensaje del usuario/cliente: ${mensaje}]`,
+      count: count + 1,
     });
-     console.log("nombre paciente:",  nombrePaciente);
-     
+    // let incrementCounter = incrementCounter(whatsapp_Id);
+    console.log("nombre paciente:", nombrePaciente);
+
     // Iniciar el proceso con OpenAI pero NO esperar a que termine
     const run = await client.beta.threads.runs.create(user_threadId, {
       assistant_id: assistantId,
@@ -182,44 +188,41 @@ app.post("/check", async (req, res) => {
       //     message: "Aún procesando",
       //   });
     }
-     console.log("corriendo runStatus por 2a vez...");
-     let runStatus2 = await client.beta.threads.runs.retrieve(threadId, runId);
-     console.log("termino de correr runStatus por 2a vez...");
+    console.log("corriendo runStatus por 2a vez...");
+    let runStatus2 = await client.beta.threads.runs.retrieve(threadId, runId);
+    console.log("termino de correr runStatus por 2a vez...");
 
+    if (runStatus2.status === "completed") {
+      // Si está completo, obtener la respuesta
+      const messages = await client.beta.threads.messages.list(threadId);
 
-     if (runStatus2.status === "completed") {
-        // Si está completo, obtener la respuesta
-        const messages = await client.beta.threads.messages.list(threadId);
-  
-        const respuesta = messages.data[0].content[0].text.value;
-  
-        console.log("...2a respuesta 'completed'.. ", respuesta);
-  
-        res.json({
-          status: "completed",
-          respuesta: respuesta,
-        });
-      } else if (runStatus2.status === "failed") {
-        res.json({
-          status: "failed",
-          respuesta: "failed status",
-          error: "La ejecución falló",
-        });
-      } else {
-        console.log("...2a respuesta 'else'.. ", respuesta);
-  
-        console.log("Iniciando 3o retraso de 3 segundos");
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        console.log("Retraso completado, enviando respuesta");
-  
-          res.json({
-            status: "processing",
-            respuesta: "processing status",
-            message: "Aún procesando",
-          });
-      }
+      const respuesta = messages.data[0].content[0].text.value;
 
+      console.log("...2a respuesta 'completed'.. ", respuesta);
 
+      res.json({
+        status: "completed",
+        respuesta: respuesta,
+      });
+    } else if (runStatus2.status === "failed") {
+      res.json({
+        status: "failed",
+        respuesta: "failed status",
+        error: "La ejecución falló",
+      });
+    } else {
+      console.log("...2a respuesta 'else'.. ", respuesta);
+
+      console.log("Iniciando 3o retraso de 3 segundos");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      console.log("Retraso completado, enviando respuesta");
+
+      res.json({
+        status: "processing",
+        respuesta: "processing status",
+        message: "Aún procesando",
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

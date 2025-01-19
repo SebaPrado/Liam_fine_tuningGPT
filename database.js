@@ -54,6 +54,8 @@ const crear_Usuario_en_DB = async (whatsapp_ID, Thread_id) => {
   }
 };
 
+
+
 // crear_Usuario_en_DB(999990, 88888);
 
 export { obtenerUsuarioDeBaseDeDatos, crear_Usuario_en_DB };

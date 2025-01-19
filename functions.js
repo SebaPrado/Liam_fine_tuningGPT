@@ -21,7 +21,7 @@ async function create_assistant(client) {
     } catch (error) {
       // PASO 2: Crea un nuevo asistente con tu modelo fine-tuned
       const assistant = await client.beta.assistants.create({
-        model: "ft:gpt-3.5-turbo-0125:seba-y-daro-org:hotelmodelseba:AhwE3v3M",
+        model: "gpt-3.5-turbo-0125",
         tools: [
           {
             type: "function",
@@ -62,6 +62,10 @@ async function create_assistant(client) {
     console.error("Error creating/loading assistant:", error);
     throw error;
   }
+}
+
+async function obtain_count(params) {
+    
 }
 
 // ==========   2 )   Función para crear un lead en Airtable     =============//
