@@ -99,6 +99,7 @@ app.post("/whatsapp", async (req, res) => {
 
   try {
     const mensaje = req.body.messages.content;
+    const nombrePaciente = req.body.nombre;
     const whatsapp_Id = req.body.whatsapp_id;
     const assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0";
 
@@ -117,9 +118,10 @@ app.post("/whatsapp", async (req, res) => {
     //  Crear el mensaje en el thread antes de iniciar el run
     await client.beta.threads.messages.create(user_threadId, {
       role: "user",
-      content: mensaje,
+      content: `[Nombre del paciente: ${nombrePaciente}] ${mensaje}`,
     });
-
+     console.log("nombre paciente:",  nombrePaciente);
+     
     // Iniciar el proceso con OpenAI pero NO esperar a que termine
     const run = await client.beta.threads.runs.create(user_threadId, {
       assistant_id: assistantId,
