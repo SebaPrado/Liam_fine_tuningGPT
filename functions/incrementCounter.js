@@ -1,15 +1,24 @@
 import { Sequelize } from "sequelize";
+import pg from "pg";
 import dotenv from "dotenv";
 dotenv.config(); // Cargar dotenv al inicio
 // Configuración de Sequelize con la URL de conexión
+// Create a new Sequelize instance using the DATABASE_URL
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: "postgres", // Especifica el dialecto de la base de datos
-  protocol: "postgres", // Protocolo usado (para conexiones SSL)
+  dialect: "postgres",
+  dialectModule: pg,
   dialectOptions: {
     ssl: {
-      require: true, // Requiere SSL
-      rejectUnauthorized: false, // Acepta certificados no autorizados (por ejemplo, en Supabase)
+      require: true,
+      rejectUnauthorized: false,
     },
+  },
+  // Optional but recommended settings
+  pool: {
+    max: 5, // Maximum number of connection in pool
+    min: 0, // Minimum number of connection in pool
+    acquire: 30000, // The maximum time, in milliseconds, that pool will try to get connection before throwing error
+    idle: 10000, // The maximum time, in milliseconds, that a connection can be idle before being released
   },
 });
 
