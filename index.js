@@ -122,10 +122,9 @@ app.post("/whatsapp", async (req, res) => {
     //  Crear el mensaje en el thread antes de iniciar el run
     await client.beta.threads.messages.create(user_threadId, {
       role: "user",
-      content: `[Nombre del paciente: ${nombrePaciente}][Enlace para agendar consulta : ${CalendlyURL}] [Mensaje del usuario/cliente: ${mensaje}]`,
-      count: count + 1,
+      content: `Nombre del paciente: ${nombrePaciente} ,Enlace para agendar consulta : ${CalendlyURL}, ,Mensaje del usuario/cliente: ${mensaje}]`,
     });
-    // let incrementCounter = incrementCounter(whatsapp_Id);
+    await incrementCounter(whatsapp_Id);
     console.log("nombre paciente:", nombrePaciente);
 
     // Iniciar el proceso con OpenAI pero NO esperar a que termine
