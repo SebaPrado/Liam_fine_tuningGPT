@@ -10,6 +10,7 @@ import {
   crear_Usuario_en_DB,
 } from "./database.js";
 import { incrementCounter } from "./functions/incrementCounter.js";
+import { pauseUser } from "./functions/pause_user.js";
 
 // const functions = require("./functions");
 
@@ -225,6 +226,17 @@ app.post("/check", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.post("/pause", async (req, res) => {
+  let number_to_be_paused = req.body.number_to_pause;
+  console.log("number to be paused", number_to_be_paused);
+
+  let resultadopauseUser = await pauseUser(number_to_be_paused);
+
+  return res.json({
+    resultadopauseUser, // Esto enviará el resultado obtenido de pauseUser
+  });
 });
 
 //==================   Puerto de escucha  3000  ======= //

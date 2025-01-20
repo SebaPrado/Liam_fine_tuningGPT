@@ -1,9 +1,7 @@
 import { Sequelize } from "sequelize";
 import pg from "pg";
 import dotenv from "dotenv";
-dotenv.config(); // Cargar dotenv al inicio
-// Configuración de Sequelize con la URL de conexión
-// Create a new Sequelize instance using the DATABASE_URL
+dotenv.config(); 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: "postgres",
   dialectModule: pg,
