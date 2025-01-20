@@ -28,16 +28,19 @@ const pauseUser = async (number_to_pause) => {
 
     if (usuarioEspecifico_base_de_datos) {
       console.log(
-        `Usuario encontrado: ${usuarioEspecifico_base_de_datos.whatsapp_id}`);
-        return { usuario_encontrado_en_funcion_pauseUSer: usuarioEspecifico_base_de_datos };
-      
+        `Usuario encontrado: ${usuarioEspecifico_base_de_datos.whatsapp_id}`
+      );
+      await sequelize.query('UPDATE "Users" SET paused = true WHERE id = :id', {
+        replacements: { id: usuarioEspecifico_base_de_datos.id },
+        type: Sequelize.QueryTypes.UPDATE,
+      });
+      return { usuarioEspecifico_base_de_datos };
     } else {
       console.log(
         `No se encontró ningún usuario con whatsapp_id que contenga ${number_to_pause}`
       );
       return { mensaje: "Usuario no encontrado" };
     }
-    
   } catch (error) {
     console.error("Error al incrementar el contador:", error);
   }
