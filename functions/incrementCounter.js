@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 import pg from "pg";
 import dotenv from "dotenv";
-dotenv.config(); 
+dotenv.config();
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: "postgres",
   dialectModule: pg,
@@ -35,9 +35,9 @@ const incrementCounter = async (whatsapp_id) => {
           replacements: { nuevoContador, whatsapp_id },
         }
       );
-      console.log(
-        `Número de interacciones incrementado para el usuario con whatsapp_id: ${whatsapp_id}`
-      );
+      //   console.log(
+      //     `Número de interacciones incrementado para el usuario con whatsapp_id: ${whatsapp_id}`
+      //   );
     } else {
       console.error(
         `sebita : Usuario con whatsapp_id: ${whatsapp_id} no encontrado.`

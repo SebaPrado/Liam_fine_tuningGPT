@@ -34,6 +34,7 @@ const pauseUser = async (number_to_pause) => {
         replacements: { id: usuarioEspecifico_base_de_datos.id },
         type: Sequelize.QueryTypes.UPDATE,
       });
+      console.log(" Y :", usuarioEspecifico_base_de_datos);
       return { usuarioEspecifico_base_de_datos };
     } else {
       console.log(

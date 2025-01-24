@@ -26,6 +26,7 @@ const obtenerUsuarioDeBaseDeDatos = async (whatsapp_ID) => {
       (user) => user.whatsapp_id == whatsapp_ID
     );
 
+    console.log("usuario es : ", usuarioEspecifico_base_de_datos);
     return usuarioEspecifico_base_de_datos;
   } catch (error) {
     console.error("Error al consultar la tabla Users:", error.message);
@@ -53,9 +54,5 @@ const crear_Usuario_en_DB = async (whatsapp_ID, Thread_id) => {
     console.error("Error al consultar la tabla Users:", error.message);
   }
 };
-
-
-
-// crear_Usuario_en_DB(999990, 88888);
 
 export { obtenerUsuarioDeBaseDeDatos, crear_Usuario_en_DB };
