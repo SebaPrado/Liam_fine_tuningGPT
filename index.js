@@ -299,7 +299,7 @@ app.post("/check", async (req, res) => {
           console.log("...respuesta 'completed'.. ", respuesta);
   
           return res.json({
-            status: "completed",
+            status: "completed..",
             respuesta: respuesta,
           });
         } else if (["failed", "expired"].includes(runStatus.status)) {
