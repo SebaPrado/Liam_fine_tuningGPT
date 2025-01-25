@@ -304,7 +304,7 @@ app.post("/check", async (req, res) => {
           });
         } else if (["failed", "expired"].includes(runStatus.status)) {
           return res.json({
-            status: "failed -expired",
+            status: "failed -expired..",
             respuesta: "failed - expired status",
             error: "La ejecución falló",
           });
