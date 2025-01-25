@@ -285,7 +285,7 @@ app.post("/check", async (req, res) => {
   
       let intentos = 0; // Contador para controlar los intentos
       let maxIntentos = 3; // Máximo de intentos permitidos
-      let delay = 2760; // Tiempo de retraso entre intentos en milisegundos
+      let delay = 2750; // Tiempo de retraso entre intentos en milisegundos
       let runStatus;
   
       while (intentos < maxIntentos) {
