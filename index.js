@@ -278,8 +278,7 @@ app.post("/check", async (req, res) => {
     console.log(
       "------------------------------       / Check         ----------------------------------"
     );
-  //run_zy0XZfhV7ESemXAz4Z7VyVDy
-  //thread_te0THOv5OO57xnDcA8Hb5O0K
+  
     try {
       const { runId, threadId } = req.body;
       console.log(`1) Verificando run ${runId} en thread ${threadId}`);
