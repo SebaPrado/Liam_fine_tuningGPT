@@ -57,7 +57,7 @@ app.post("/whatsapp", async (req, res) => {
     const mensaje = req.body.messages.content;
     const nombrePaciente = req.body.nombre;
     const whatsapp_Id = req.body.whatsapp_id;
-    const assistantId = "asst_sBmjedCg1l72PZtXnJWN7Jk0";
+    const assistantId = "asst_3J9tx1NLfoxBf4JnuXi9w3Ec";
 
     //============================    Obtengo  o creo THREAD  (Database)  =====================================//
 
