@@ -83,10 +83,11 @@ app.post("/whatsapp", async (req, res) => {
     // });
     await client.beta.threads.messages.create(user_threadId, {
       role: "user",
-      content: ` 1) Mensaje del cliente/paciente : ${mensaje}.
-      2) Información del paciente actual:
-      Nombre: ${nombrePaciente}
-      Link-enlace de agendamiento para la consulta: ${CalendlyURL}`,
+      content: mensaje,
+      //` 1) Mensaje del cliente/paciente : ${mensaje}.
+      //   2) Información del paciente actual:
+      //   Nombre: ${nombrePaciente}
+      //   Link-enlace de agendamiento para la consulta: ${CalendlyURL}`,
     });
     await incrementCounter(whatsapp_Id);
     console.log(" 3.1) nombre paciente:", nombrePaciente);
@@ -232,7 +233,7 @@ app.post("/whatsapp", async (req, res) => {
 //       });
 //     } else {
 //       console.log("corriendo runStatus por 3a vez...");
-      
+
 //       console.log("Iniciando 3o retraso de 3 segundos");
 //       await new Promise((resolve) => setTimeout(resolve, 3000));
 //       console.log("Retraso completado, enviando respuesta");
@@ -275,59 +276,66 @@ app.post("/whatsapp", async (req, res) => {
 // });
 
 app.post("/check", async (req, res) => {
-    console.log(
-      "------------------------------       / Check         ----------------------------------"
-    );
-  
-    try {
-      const { runId, threadId } = req.body;
-      console.log(`1) Verificando run ${runId} en thread ${threadId}`);
-  
-      let intentos = 0; // Contador para controlar los intentos
-      let maxIntentos = 3; // Máximo de intentos permitidos
-      let delay = 2750; // Tiempo de retraso entre intentos en milisegundos
-      let runStatus;
-  
-      while (intentos < maxIntentos) {
-        // Obtener estado del run
-        runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
-        console.log(`Intento ${intentos + 1}: runStatus.status = ${runStatus.status}`);
-  
-        if (runStatus.status === "completed") {
-          const messages = await client.beta.threads.messages.list(threadId);
-          const respuesta = messages.data[0]?.content[0]?.text?.value || "Sin respuesta";
-          console.log("...respuesta 'completed'.. ", respuesta);
-  
-          return res.json({
-            status: "completed..",
-            respuesta: respuesta,
-          });
-        } else if (["failed", "expired"].includes(runStatus.status)) {
-          return res.json({
-            status: "failed -expired..",
-            respuesta: "failed - expired status",
-            error: "La ejecución falló",
-          });
-        }
-  
-        // Si no está completado o fallido, esperar y volver a intentar
-        console.log(`Estado no finalizado (${runStatus.status}), esperando ${delay / 1000} segundos...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        intentos++;
+  console.log(
+    "------------------------------       / Check         ----------------------------------"
+  );
+
+  try {
+    const { runId, threadId } = req.body;
+    console.log(`1) Verificando run ${runId} en thread ${threadId}`);
+
+    let intentos = 0; // Contador para controlar los intentos
+    let maxIntentos = 3; // Máximo de intentos permitidos
+    let delay = 2750; // Tiempo de retraso entre intentos en milisegundos
+    let runStatus;
+
+    while (intentos < maxIntentos) {
+      // Obtener estado del run
+      runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
+      console.log(
+        `Intento ${intentos + 1}: runStatus.status = ${runStatus.status}`
+      );
+
+      if (runStatus.status === "completed") {
+        const messages = await client.beta.threads.messages.list(threadId);
+        const respuesta =
+          messages.data[0]?.content[0]?.text?.value || "Sin respuesta";
+        console.log("...respuesta 'completed'.. ", respuesta);
+
+        return res.json({
+          status: "completed..",
+          respuesta: respuesta,
+        });
+      } else if (["failed", "expired"].includes(runStatus.status)) {
+        return res.json({
+          status: "failed -expired..",
+          respuesta: "failed - expired status",
+          error: "La ejecución falló",
+        });
       }
-  
-      // Si el estado nunca fue "completed" después de los intentos
-      return res.json({
-        status: "processing",
-        respuesta: "El estado sigue siendo 'in_progress' o 'queued' después de múltiples intentos",
-        message: "Aún procesando",
-      });
-    } catch (error) {
-      console.error("Error en /check: ", error.message);
-      return res.status(500).json({ error: error.message });
+
+      // Si no está completado o fallido, esperar y volver a intentar
+      console.log(
+        `Estado no finalizado (${runStatus.status}), esperando ${
+          delay / 1000
+        } segundos...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      intentos++;
     }
-  });
-  
+
+    // Si el estado nunca fue "completed" después de los intentos
+    return res.json({
+      status: "processing",
+      respuesta:
+        "El estado sigue siendo 'in_progress' o 'queued' después de múltiples intentos",
+      message: "Aún procesando",
+    });
+  } catch (error) {
+    console.error("Error en /check: ", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 app.post("/pause", async (req, res) => {
   let number_to_be_paused = req.body.number_to_pause;
