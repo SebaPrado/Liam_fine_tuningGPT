@@ -24,7 +24,7 @@ app.use(express.json());
 // app.use(cors());
 // app.use(cors({ origin: "*" })); // Permitir todas las conexiones
 const corsOptions = {
-    origin: "http://localhost:3010", // Permite solicitudes desde este origen
+    origin: "*", // Permite solicitudes desde cualquier origen 
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
     credentials: true, // Permite el envío de cookies o autenticación
     optionsSuccessStatus: 204, // Respuesta para solicitudes OPTIONS
