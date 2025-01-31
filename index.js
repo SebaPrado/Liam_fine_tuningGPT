@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import OpenAI from "openai";
 import ngrok from "@ngrok/ngrok";
+import cors from "cors";
 
 import { obtenerUsuarioDeBaseDeDatos } from "./functions/database.js";
 import { crear_Usuario_en_DB } from "./functions/database.js";
@@ -20,6 +21,17 @@ dotenv.config(); // Cargar dotenv al inicio
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const app = express();
 app.use(express.json());
+// app.use(cors());
+// app.use(cors({ origin: "*" })); // Permitir todas las conexiones
+const corsOptions = {
+    origin: "http://localhost:3010", // Permite solicitudes desde este origen
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
+    credentials: true, // Permite el envío de cookies o autenticación
+    optionsSuccessStatus: 204, // Respuesta para solicitudes OPTIONS
+  };
+  
+  app.use(cors(corsOptions)); // Aplica la configuración de CORS
+
 
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
@@ -337,6 +349,10 @@ app.post("/check", async (req, res) => {
   }
 });
 
+/// =================================================================================================================== //
+//// =====================================      ⬇️    Ruta / pause     ⬇️      ======================================= //
+/// =================================================================================================================== //
+
 app.post("/pause", async (req, res) => {
   let number_to_be_paused = req.body.number_to_pause;
   console.log("number to be paused", number_to_be_paused);
@@ -348,7 +364,108 @@ app.post("/pause", async (req, res) => {
   });
 });
 
-//==================   Puerto de escucha  3000  ======= //
+/// =================================================================================================================== //
+//// =====================================      ⬇️    Ruta / script_chat     ⬇️      ======================================= //
+/// =================================================================================================================== //
+
+app.post("/script_chat", async (req, res) => {
+  console.log(
+    "------------------------------ /script_chat ----------------------------------"
+  );
+
+  try {
+    let messages = req.body.messages;
+    const nombre = req.body.nombrePaciente;
+    const user_id = req.body.userid;
+    const assistantId = "asst_3J9tx1NLfoxBf4JnuXi9w3Ec";
+
+    //// Obtener o crear el thread del usuario
+    const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(user_id);
+    let userThreadId = usuarioDatabase?.Thread_id;
+
+    // if (!usuarioDatabase) {
+    const thread = await client.beta.threads.create();
+    userThreadId = thread.id;
+    await crear_Usuario_en_DB(user_id, userThreadId);
+    // }
+
+    // Crear un nuevo mensaje en el thread
+    await client.beta.threads.messages.create(userThreadId, {
+      role: "user",
+      content: messages,
+    });
+
+    await incrementCounter(user_id); // Incrementar el contador de interacciones
+
+    // Crear un nuevo run en el thread
+    const run = await client.beta.threads.runs.create(userThreadId, {
+      assistant_id: assistantId,
+    });
+
+    // Función para verificar el estado del run
+    const waitForRunCompletion = async (threadId, runId) => {
+      let retrieveStatus;
+      do {
+        retrieveStatus = await client.beta.threads.runs.retrieve(
+          threadId,
+          runId
+        );
+        console.log("Estado del run:", retrieveStatus.status);
+
+        if (retrieveStatus.status === "expired") {
+          console.log("Run expirado, creando nuevo run...");
+          const newRunResult = await handleExpiredRun(
+            client,
+            threadId,
+            assistantId
+          );
+          runId = newRunResult.runId;
+          retrieveStatus.status = newRunResult.status;
+        }
+
+        // Esperar 1 segundo antes de verificar nuevamente
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } while (retrieveStatus.status !== "completed");
+
+      return retrieveStatus;
+    };
+
+    // Esperar a que el run esté completado
+    const completedRun = await waitForRunCompletion(userThreadId, run.id);
+
+    //====================================================
+
+    const messagess = await client.beta.threads.messages.list(userThreadId);
+    const respuesta = messagess.data[0].content[0].text.value;
+    console.log(respuesta);
+
+    //====================================================
+
+    // Obtener la respuesta del asistente
+    // messages = await client.beta.threads.messages.list(userThreadId);
+    // const assistantResponse = messages.data
+    //   .filter((msg) => msg.role === "assistant")
+    //   .map((msg) => msg.content)
+    //   .join("\n");
+
+    // console.log("assistantResponse :", assistantResponse.text.value);
+
+    // Responder con la respuesta del asistente
+    res.json({
+      status: completedRun.status,
+      response: respuesta,
+      threadId: userThreadId,
+    });
+  } catch (error) {
+    console.error("Error en /script_chat:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// =========================================================================================== //
+//=============================       Puerto de escucha  3000        ========================= //
+// =========================================================================================== //
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
