@@ -24,14 +24,13 @@ app.use(express.json());
 // app.use(cors());
 // app.use(cors({ origin: "*" })); // Permitir todas las conexiones
 const corsOptions = {
-    origin: "*", // Permite solicitudes desde cualquier origen 
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
-    credentials: true, // Permite el envío de cookies o autenticación
-    optionsSuccessStatus: 204, // Respuesta para solicitudes OPTIONS
-  };
-  
-  app.use(cors(corsOptions)); // Aplica la configuración de CORS
+  origin: "*", // Permite solicitudes desde cualquier origen
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
+  credentials: true, // Permite el envío de cookies o autenticación
+  optionsSuccessStatus: 204, // Respuesta para solicitudes OPTIONS
+};
 
+app.use(cors(corsOptions)); // Aplica la configuración de CORS
 
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
@@ -375,32 +374,31 @@ app.post("/script_chat", async (req, res) => {
 
   try {
     let messages = req.body.messages;
-    const nombre = req.body.nombrePaciente;
-    const user_id = req.body.userid;
+    // const nombre = req.body.nombrePaciente;
+    const new_chat = req.body.new_chat;
+    const sessionId = req.body.sessionId;
+    let threadId = req.body.thread_id
     const assistantId = "asst_3J9tx1NLfoxBf4JnuXi9w3Ec";
 
-    //// Obtener o crear el thread del usuario
-    const usuarioDatabase = await obtenerUsuarioDeBaseDeDatos(user_id);
-    let userThreadId = usuarioDatabase?.Thread_id;
+    console.log("0) inicio_newchat + sessionId:", new_chat, sessionId);
 
-    // if (!usuarioDatabase) {
-    const thread = await client.beta.threads.create();
-    userThreadId = thread.id;
-    console.log("1) userThreadId ",userThreadId);
-    
-    await crear_Usuario_en_DB(user_id, userThreadId);
-    // }
+
+    if (threadId) {
+      console.log("1) threadId ", threadId);
+    } else {
+      const thread = await client.beta.threads.create();
+      threadId = thread.id;
+      console.log("2) threadId ", threadId);
+    }
 
     // Crear un nuevo mensaje en el thread
-    await client.beta.threads.messages.create(userThreadId, {
+    await client.beta.threads.messages.create(threadId, {
       role: "user",
       content: messages,
     });
 
-    await incrementCounter(user_id); // Incrementar el contador de interacciones
-
     // Crear un nuevo run en el thread
-    const run = await client.beta.threads.runs.create(userThreadId, {
+    const run = await client.beta.threads.runs.create(threadId, {
       assistant_id: assistantId,
     });
 
@@ -433,11 +431,11 @@ app.post("/script_chat", async (req, res) => {
     };
 
     // Esperar a que el run esté completado
-    const completedRun = await waitForRunCompletion(userThreadId, run.id);
+    const completedRun = await waitForRunCompletion(threadId, run.id);
 
     //====================================================
 
-    const messagess = await client.beta.threads.messages.list(userThreadId);
+    const messagess = await client.beta.threads.messages.list(threadId);
     const respuesta = messagess.data[0].content[0].text.value;
     console.log(respuesta);
 
@@ -456,7 +454,9 @@ app.post("/script_chat", async (req, res) => {
     res.json({
       status: completedRun.status,
       response: respuesta,
-      threadId: userThreadId,
+      threadId: threadId,
+      sessionId: sessionId,
+      new_chat: new_chat
     });
   } catch (error) {
     console.error("Error en /script_chat:", error);
