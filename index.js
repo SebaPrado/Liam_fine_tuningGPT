@@ -386,6 +386,8 @@ app.post("/script_chat", async (req, res) => {
     // if (!usuarioDatabase) {
     const thread = await client.beta.threads.create();
     userThreadId = thread.id;
+    console.log("1) userThreadId ",userThreadId);
+    
     await crear_Usuario_en_DB(user_id, userThreadId);
     // }
 

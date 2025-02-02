@@ -27,15 +27,6 @@ async function basicFineTunedCall() {
           },
         ],
       },
-      //   {
-      //     role: "assistant",
-      //     content: [
-      //       {
-      //         type: "text",
-      //         text: "La clínica está abierta de lunes a viernes, de 9:00 a 18:00 horas.",
-      //       },
-      //     ],
-      //   },
     ],
     response_format: {
       type: "text",

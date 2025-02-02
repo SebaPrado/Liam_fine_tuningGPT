@@ -89,15 +89,7 @@ async function enviarMensaje(contenidoMensaje) {
         console.log("El último mensaje no tiene contenido.");
       }
 
-      //   console.log( "sebote", messages.data.content[0]);
-
-      // Mostramos los mensajes
-      //   messages.data.reverse().forEach((message) => {
-      //     console.log(
-      //       "cuando status=completed",
-      //       `${message.role[0]} > ${message.content[0].text.value}`
-      //     );
-      //   });
+      
     }
   } catch (error) {
     console.error("Error al enviar mensaje:", error);
