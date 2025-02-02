@@ -6,8 +6,8 @@ import OpenAI from "openai";
 import ngrok from "@ngrok/ngrok";
 import cors from "cors";
 
-import { obtenerUsuarioDeBaseDeDatos } from "./functions/database.js";
-import { crear_Usuario_en_DB } from "./functions/database.js";
+import { obtenerUsuarioDeBaseDeDatos } from "./functions/database_functions.js";
+import { crear_Usuario_en_DB } from "./functions/database_functions.js";
 import { incrementCounter } from "./functions/incrementCounter.js";
 import { pauseUser } from "./functions/pause_user.js";
 import { handleExpiredRun } from "./functions/handleExpiredRun.js";
