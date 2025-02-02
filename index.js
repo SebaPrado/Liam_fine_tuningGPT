@@ -424,7 +424,7 @@ app.post("/script_chat", async (req, res) => {
         }
 
         // Esperar 1 segundo antes de verificar nuevamente
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } while (retrieveStatus.status !== "completed");
 
       return retrieveStatus;
