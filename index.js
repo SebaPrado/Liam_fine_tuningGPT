@@ -488,8 +488,8 @@ app.post("/script_chat", async (req, res) => {
     const completedRun = await waitForRunCompletion(threadId, run.id);
 
     // Obtener la respuesta final
-    const messages = await client.beta.threads.messages.list(threadId);
-    const respuesta = messages.data[0].content[0].text.value;
+    const messageList = await client.beta.threads.messages.list(threadId);
+    const respuesta = messageList.data[0].content[0].text.value;
 
     res.json({
       status: completedRun.status,
