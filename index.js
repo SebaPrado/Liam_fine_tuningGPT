@@ -374,35 +374,28 @@ app.post("/script_chat", async (req, res) => {
 
   try {
     let messages = req.body.messages;
-    // const nombre = req.body.nombrePaciente;
-    const new_chat = req.body.new_chat;
     const sessionId = req.body.sessionId;
-    let threadId = req.body.thread_id
+    let threadId = req.body.thread_id;
     const assistantId = "asst_3J9tx1NLfoxBf4JnuXi9w3Ec";
 
-    console.log("0) inicio_newchat + sessionId:", new_chat, sessionId);
-
-
-    if (threadId) {
-      console.log("1) threadId ", threadId);
-    } else {
+    // Crear thread si no existe
+    if (!threadId) {
       const thread = await client.beta.threads.create();
       threadId = thread.id;
-      console.log("2) threadId ", threadId);
     }
 
-    // Crear un nuevo mensaje en el thread
+    // Crear mensaje en el thread
     await client.beta.threads.messages.create(threadId, {
       role: "user",
       content: messages,
     });
 
-    // Crear un nuevo run en el thread
+    // Crear run
     const run = await client.beta.threads.runs.create(threadId, {
       assistant_id: assistantId,
     });
 
-    // Función para verificar el estado del run
+    // Función para manejar todos los estados del run
     const waitForRunCompletion = async (threadId, runId) => {
       let retrieveStatus;
       do {
@@ -412,7 +405,45 @@ app.post("/script_chat", async (req, res) => {
         );
         console.log("Estado del run:", retrieveStatus.status);
 
-        if (retrieveStatus.status === "expired") {
+        // Lógica de manejo de estados usando if-else
+        if (retrieveStatus.status === "requires_action") {
+          // Manejar function calling
+          const toolCalls =
+            retrieveStatus.required_action.submit_tool_outputs.tool_calls;
+
+          const toolOutputs = await Promise.all(
+            toolCalls.map(async (toolCall) => {
+              if (toolCall.function.name === "get_weather") {
+                const args = JSON.parse(toolCall.function.arguments);
+
+                // Implementar llamada a la función de clima
+                const weatherResponse = await fetchWeatherData(
+                  args.location,
+                  args.unit
+                );
+
+                return {
+                  tool_call_id: toolCall.id,
+                  output: JSON.stringify(weatherResponse),
+                };
+              }
+
+              throw new Error(
+                `Función no reconocida: ${toolCall.function.name}`
+              );
+            })
+          );
+
+          // Enviar resultados de las funciones
+          retrieveStatus = await client.beta.threads.runs.submitToolOutputs(
+            threadId,
+            runId,
+            { tool_outputs: toolOutputs }
+          );
+        } else if (retrieveStatus.status === "pending") {
+          // Añadir un pequeño delay para evitar sobrecarga
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else if (retrieveStatus.status === "expired") {
           console.log("Run expirado, creando nuevo run...");
           const newRunResult = await handleExpiredRun(
             client,
@@ -421,48 +452,56 @@ app.post("/script_chat", async (req, res) => {
           );
           runId = newRunResult.runId;
           retrieveStatus.status = newRunResult.status;
+        } else if (retrieveStatus.status === "failed") {
+          throw new Error("El run ha fallado");
         }
-
-        // Esperar 1 segundo antes de verificar nuevamente
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      } while (retrieveStatus.status !== "completed");
+      } while (!["completed", "failed"].includes(retrieveStatus.status));
 
       return retrieveStatus;
+    };
+
+    // Función para obtener datos del clima
+    const fetchWeatherData = async (location, unit) => {
+      try {
+        const response = await axios.get(
+          "https://api.openweathermap.org/data/2.5/weather",
+          {
+            params: {
+              q: location,
+              units: unit === "c" ? "metric" : "imperial",
+              appid: "TU_API_KEY_DE_OPENWEATHERMAP",
+            },
+          }
+        );
+
+        return {
+          temperature: response.data.main.temp,
+          description: response.data.weather[0].description,
+        };
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+        throw new Error("No se pudo obtener la información del clima");
+      }
     };
 
     // Esperar a que el run esté completado
     const completedRun = await waitForRunCompletion(threadId, run.id);
 
-    //====================================================
+    // Obtener la respuesta final
+    const messages = await client.beta.threads.messages.list(threadId);
+    const respuesta = messages.data[0].content[0].text.value;
 
-    const messagess = await client.beta.threads.messages.list(threadId);
-    const respuesta = messagess.data[0].content[0].text.value;
-    console.log(respuesta);
-
-    //====================================================
-
-    // Obtener la respuesta del asistente
-    // messages = await client.beta.threads.messages.list(userThreadId);
-    // const assistantResponse = messages.data
-    //   .filter((msg) => msg.role === "assistant")
-    //   .map((msg) => msg.content)
-    //   .join("\n");
-
-    // console.log("assistantResponse :", assistantResponse.text.value);
-
-    // Responder con la respuesta del asistente
     res.json({
       status: completedRun.status,
       response: respuesta,
       threadId: threadId,
-      sessionId: sessionId
+      sessionId: sessionId,
     });
   } catch (error) {
     console.error("Error en /script_chat:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
 // =========================================================================================== //
 //=============================       Puerto de escucha  3000        ========================= //
 // =========================================================================================== //
