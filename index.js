@@ -455,8 +455,7 @@ app.post("/script_chat", async (req, res) => {
       status: completedRun.status,
       response: respuesta,
       threadId: threadId,
-      sessionId: sessionId,
-      new_chat: new_chat
+      sessionId: sessionId
     });
   } catch (error) {
     console.error("Error en /script_chat:", error);
