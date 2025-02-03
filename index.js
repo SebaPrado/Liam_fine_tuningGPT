@@ -382,6 +382,8 @@ app.post("/script_chat", async (req, res) => {
     if (!threadId) {
       const thread = await client.beta.threads.create();
       threadId = thread.id;
+      console.log("threadId",threadId);
+      
     }
 
     // Crear mensaje en el thread
@@ -413,18 +415,13 @@ app.post("/script_chat", async (req, res) => {
 
           const toolOutputs = await Promise.all(
             toolCalls.map(async (toolCall) => {
-              if (toolCall.function.name === "get_weather") {
-                const args = JSON.parse(toolCall.function.arguments);
-
-                // Implementar llamada a la función de clima
-                const weatherResponse = await fetchWeatherData(
-                  args.location,
-                  args.unit
-                );
+              if (toolCall.function.name === "get_current_date") {
+               
+                const dateResponse = await obtenerFechaActual();
 
                 return {
                   tool_call_id: toolCall.id,
-                  output: JSON.stringify(weatherResponse),
+                  output: JSON.stringify(dateResponse),
                 };
               }
 
@@ -461,26 +458,25 @@ app.post("/script_chat", async (req, res) => {
     };
 
     // Función para obtener datos del clima
-    const fetchWeatherData = async (location, unit) => {
+    const obtenerFechaActual = async () => {
       try {
-        const response = await axios.get(
-          "https://api.openweathermap.org/data/2.5/weather",
-          {
-            params: {
-              q: location,
-              units: unit === "c" ? "metric" : "imperial",
-              appid: "TU_API_KEY_DE_OPENWEATHERMAP",
-            },
-          }
-        );
+        const fecha = new Date();
+        const opciones = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        };
+        const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
+        console.log("fecha",fechaFormateada);
+        
 
         return {
-          temperature: response.data.main.temp,
-          description: response.data.weather[0].description,
+          fecha: fechaFormateada,
         };
       } catch (error) {
-        console.error("Error fetching weather:", error);
-        throw new Error("No se pudo obtener la información del clima");
+        console.error("Error obteniendo la fecha:", error);
+        throw new Error("No se pudo obtener la fecha actual");
       }
     };
 
