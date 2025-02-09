@@ -3,7 +3,6 @@
 import dotenv from "dotenv";
 import express from "express";
 import OpenAI from "openai";
-import ngrok from "@ngrok/ngrok";
 import cors from "cors";
 
 import { obtenerUsuarioDeBaseDeDatos } from "./functions/database_functions.js";
