@@ -20,8 +20,6 @@ dotenv.config(); // Cargar dotenv al inicio
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const app = express();
 app.use(express.json());
-// app.use(cors());
-// app.use(cors({ origin: "*" })); // Permitir todas las conexiones
 const corsOptions = {
   origin: "*", // Permite solicitudes desde cualquier origen
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
