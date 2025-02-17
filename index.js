@@ -373,7 +373,7 @@ app.post("/script_chat", async (req, res) => {
     let messages = req.body.messages;
     const sessionId = req.body.sessionId;
     let threadId = req.body.thread_id;
-    const assistantId = "asst_3J9tx1NLfoxBf4JnuXi9w3Ec";
+    const assistantId = "asst_FWYpAe5YTsAi2cz8IGoKXEI9";
 
     // Crear thread si no existe
     if (!threadId) {
