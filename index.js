@@ -379,8 +379,7 @@ app.post("/script_chat", async (req, res) => {
     if (!threadId) {
       const thread = await client.beta.threads.create();
       threadId = thread.id;
-      console.log("threadId",threadId);
-      
+      console.log("threadId", threadId);
     }
 
     // Crear mensaje en el thread
@@ -413,7 +412,6 @@ app.post("/script_chat", async (req, res) => {
           const toolOutputs = await Promise.all(
             toolCalls.map(async (toolCall) => {
               if (toolCall.function.name === "get_current_date") {
-               
                 const dateResponse = await obtenerFechaActual();
 
                 return {
@@ -465,8 +463,7 @@ app.post("/script_chat", async (req, res) => {
           day: "numeric",
         };
         const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
-        console.log("fecha",fechaFormateada);
-        
+        console.log("fecha", fechaFormateada);
 
         return {
           fecha: fechaFormateada,
@@ -477,16 +474,31 @@ app.post("/script_chat", async (req, res) => {
       }
     };
 
+    const cleanAIResponse = (response) => {
+      // Usamos una expresión regular para encontrar y eliminar el patrón
+      // El patrón busca:
+      // - Texto que comienza con 【
+      // - Seguido por cualquier carácter (números, letras, símbolos) hasta encontrar
+      // - El cierre con 】
+      const cleanedResponse = response.replace(/【[^】]*】/g, "");
+
+      // Eliminamos espacios extra que pudieran quedar
+      return cleanedResponse.trim();
+    };
+
     // Esperar a que el run esté completado
     const completedRun = await waitForRunCompletion(threadId, run.id);
 
     // Obtener la respuesta final
     const messageList = await client.beta.threads.messages.list(threadId);
     const respuesta = messageList.data[0].content[0].text.value;
+    console.log("respuesta: ", respuesta);
+
+    const respuesta2 = cleanAIResponse(respuesta);
 
     res.json({
       status: completedRun.status,
-      response: respuesta,
+      response: respuesta2,
       threadId: threadId,
       sessionId: sessionId,
     });
