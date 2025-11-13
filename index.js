@@ -248,6 +248,62 @@ app.post("/pause", async (req, res) => {
 //// =====================================      ⬇️    Ruta / script_chat     ⬇️      ======================================= //
 /// =================================================================================================================== //
 
+//=======================================================================================================================//
+//=======================================================================================================================//
+
+// Configuración de Supabase
+const SUPABASE_URL = 'https://bvdrogzfvzzcnibnzvmy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2ZHJvZ3pmdnp6Y25pYm56dm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2NDAzMjgsImV4cCI6MjA1ODIxNjMyOH0.nYvOxNSJod1unLUXVIOYYsaD5ft-1ESr-g5qWcDiZus';
+
+// Función para consultar cupos disponibles en Supabase
+const obtenerCuposDisponibles = async (fecha) => {
+  try {
+    console.log(`📅 Consultando cupos para fecha: ${fecha}`);
+    
+    const url = `${SUPABASE_URL}/rest/v1/rpc/leercupos`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ fecha_param: fecha })
+    });
+
+    const cupos = await response.json();
+
+    if (!response.ok) {
+      console.error('❌ Error en la llamada a Supabase:', cupos);
+      throw new Error('No se pudieron obtener los cupos de Supabase');
+    }
+
+    console.log(`✅ Cupos encontrados: ${cupos.length}`);
+    
+    // Retornamos un objeto estructurado con la información
+    return {
+      success: true,
+      fecha: fecha,
+      cantidad: cupos.length,
+      cupos: cupos
+    };
+
+  } catch (error) {
+    console.error('🚨 Error al conectar con Supabase:', error);
+    
+    // En caso de error, retornamos un objeto con información del error
+    // Esto permite que el asistente pueda informar al usuario del problema
+    return {
+      success: false,
+      error: error.message,
+      fecha: fecha
+    };
+  }
+};
+//=======================================================================================================================//
+//=======================================================================================================================//
+
 app.post("/script_chat", async (req, res) => {
   console.log(
     "------------------------------ /script_chat ----------------------------------"
@@ -318,22 +374,49 @@ app.post("/script_chat", async (req, res) => {
           const toolCalls =
             retrieveStatus.required_action.submit_tool_outputs.tool_calls;
 
-          const toolOutputs = await Promise.all(
-            toolCalls.map(async (toolCall) => {
-              if (toolCall.function.name === "get_current_date") {
-                const dateResponse = await obtenerFechaActual();
 
-                return {
-                  tool_call_id: toolCall.id,
-                  output: JSON.stringify(dateResponse),
-                };
-              }
-
-              throw new Error(
-                `Función no reconocida: ${toolCall.function.name}`
-              );
-            })
-          );
+            //=======================================================================================================================//
+            const toolOutputs = await Promise.all(
+              toolCalls.map(async (toolCall) => {
+                // Función existente: obtener fecha actual
+                if (toolCall.function.name === "get_current_date") {
+                  const dateResponse = await obtenerFechaActual();
+            
+                  return {
+                    tool_call_id: toolCall.id,
+                    output: JSON.stringify(dateResponse),
+                  };
+                }
+            
+                // Nueva función: leer cupos disponibles de Supabase
+                if (toolCall.function.name === "leerCupos") {
+                  // Parseamos los argumentos que el asistente nos envió
+                  const args = JSON.parse(toolCall.function.arguments);
+                  
+                  console.log(`🔍 Asistente solicita leerCupos con argumentos:`, args);
+                  
+                  // Ejecutamos la consulta a Supabase
+                  const cuposResponse = await obtenerCuposDisponibles(args.fecha);
+                  
+                  console.log(`📦 Resultado de leerCupos:`, {
+                    success: cuposResponse.success,
+                    cantidad: cuposResponse.cantidad || 0
+                  });
+            
+                  // Retornamos el resultado al asistente en formato JSON string
+                  return {
+                    tool_call_id: toolCall.id,
+                    output: JSON.stringify(cuposResponse),
+                  };
+                }
+            
+                // Si llegamos aquí, la función solicitada no está implementada
+                throw new Error(
+                  `Función no reconocida: ${toolCall.function.name}`
+                );
+              })
+            );
+          //=======================================================================================================================//
 
           // Enviar resultados de las funciones
           retrieveStatus = await client.beta.threads.runs.submitToolOutputs(
