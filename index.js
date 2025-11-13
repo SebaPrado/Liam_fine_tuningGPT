@@ -166,122 +166,6 @@ app.post("/whatsapp", async (req, res) => {
   }
 });
 
-/// =================================================================================================================== //
-//// =====================================      ⬇️    Ruta / check     ⬇️      ======================================= //
-/// =================================================================================================================== //
-
-// app.post("/check", async (req, res) => {
-//   console.log(
-//     "------------------------------       / Check         ----------------------------------"
-//   );
-
-//   try {
-//     const { runId, threadId } = req.body;
-//     console.log(`1)Verificando run ${runId} en thread ${threadId}`);
-
-//     // Obtener estado del run
-//     let runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
-//     console.log("runStatus", runStatus.status);
-
-//     /// ======================                   verificamos  el  status                        =============================== //
-//     // ======================         status : queued/in_progress/completed/failed/expired          ============================//
-
-//     // =======    1st try      ========//
-
-//     if (runStatus.status === "completed") {
-//       const messages = await client.beta.threads.messages.list(threadId);
-//       const respuesta = messages.data[0].content[0].text.value;
-//       console.log("...respuesta 'completed'.. ", respuesta);
-
-//       return res.json({
-//         status: "completed",
-//         respuesta: respuesta,
-//       });
-//     } else if (
-//       runStatus.status === "failed" ||
-//       runStatus.status === "expired"
-//     ) {
-//       return res.json({
-//         status: "failed - expired",
-//         respuesta: "failed - expired status",
-//         error: "La ejecución falló",
-//       });
-//     } else {
-//       console.log(" respuesta inprgress o queued.. ", respuesta);
-//       console.log("Iniciando 2o retraso de 3 segundos");
-//       await new Promise((resolve) => setTimeout(resolve, 3000));
-//       console.log("Retraso completado, enviando respuesta");
-//     }
-
-//     // =======    2nd try      ========//
-
-//     console.log("corriendo runStatus por 2a vez...");
-//     let runStatus2 = await client.beta.threads.runs.retrieve(threadId, runId);
-
-//     if (runStatus2.status === "completed") {
-//       console.log("runStatus por 2a vez = 'completed'");
-
-//       const messages = await client.beta.threads.messages.list(threadId);
-//       const respuesta = messages.data[0].content[0].text.value;
-
-//       console.log("...2a respuesta 'completed'.. ", respuesta);
-
-//       return res.json({
-//         status: "2nd try : completed",
-//         respuesta: respuesta,
-//       });
-//     } else if (
-//       runStatus.status === "failed" ||
-//       runStatus.status === "expired"
-//     ) {
-//       return res.json({
-//         status: " 2nd try : failed - expired",
-//         respuesta: "failed - expired status",
-//         error: "La ejecución falló",
-//       });
-//     } else {
-//       console.log("corriendo runStatus por 3a vez...");
-
-//       console.log("Iniciando 3o retraso de 3 segundos");
-//       await new Promise((resolve) => setTimeout(resolve, 3000));
-//       console.log("Retraso completado, enviando respuesta");
-
-//       runStatus2 = await client.beta.threads.runs.retrieve(threadId, runId);
-
-//       if (runStatus2.status === "completed") {
-//         console.log("runStatus por 3a vez = 'completed'");
-
-//         const messages = await client.beta.threads.messages.list(threadId);
-//         const respuesta = messages.data[0].content[0].text.value;
-
-//         console.log("...3a respuesta 'completed'.. ", respuesta);
-
-//         return res.json({
-//           status: "3rd try : completed",
-//           respuesta: respuesta,
-//         });
-//       } else if (
-//         runStatus2.status === "failed" ||
-//         runStatus2.status === "expired"
-//       ) {
-//         return res.json({
-//           status: " 3rd try : failed - expired",
-//           respuesta: "failed - expired status",
-//           error: "La ejecución falló",
-//         });
-//       } else {
-//         console.log("...3a respuesta 'else'.. ", respuesta);
-//         return res.json({
-//           status: "processing",
-//           respuesta: "processing status",
-//           message: "Aún procesando",
-//         });
-//       }
-//     }
-//   } catch (error) {
-//     return res.status(500).json({ error: error.message });
-//   }
-// });
 
 app.post("/check", async (req, res) => {
   console.log(
@@ -373,7 +257,32 @@ app.post("/script_chat", async (req, res) => {
     let messages = req.body.messages;
     const sessionId = req.body.sessionId;
     let threadId = req.body.thread_id;
-    const assistantId = "asst_FWYpAe5YTsAi2cz8IGoKXEI9";
+    const assistantId =
+      req.body.assistantId || process.env.DEFAULT_ASSISTANT_ID;
+
+    if (!assistantId) {
+      return res.status(400).json({
+        error:
+          "assistantId no recibido. Envía assistantId en el cuerpo de la petición o configura DEFAULT_ASSISTANT_ID.",
+      });
+    }
+
+    console.log(
+      "[/script_chat] Payload recibido:",
+      JSON.stringify(
+        {
+          sessionId,
+          assistantId,
+          hasThreadId: Boolean(threadId),
+          mensajePreview:
+            typeof messages === "string"
+              ? messages.slice(0, 120)
+              : typeof messages,
+        },
+        null,
+        2
+      )
+    );
 
     // Crear thread si no existe
     if (!threadId) {
