@@ -7,7 +7,7 @@ import cors from "cors";
 
 import { obtenerUsuarioDeBaseDeDatos } from "./functions/database_functions.js";
 import { crear_Usuario_en_DB } from "./functions/database_functions.js";
-// import { incrementCounter } from "./functions/incrementCounter.js";
+import { incrementCounter } from "./functions/incrementCounter.js";
 import { pauseUser } from "./functions/pause_user.js";
 import { handleExpiredRun } from "./functions/handleExpiredRun.js";
 import { checkUserPauseStatus } from "./functions/checkUserPauseStatus.js";
@@ -391,144 +391,158 @@ app.post("/script_chat", async (req, res) => {
       assistant_id: assistantId,
     });
 
-    // Función para manejar todos los estados del run
-    const waitForRunCompletion = async (threadId, runId) => {
-      let retrieveStatus;
-      do {
-        retrieveStatus = await client.beta.threads.runs.retrieve(
-          threadId,
-          runId
-        );
-        console.log("Estado del run:", retrieveStatus.status);
+    console.log("✅ Run creado:", run.id, "con status inicial:", run.status);
 
-        // Lógica de manejo de estados usando if-else
-        if (retrieveStatus.status === "requires_action") {
-          // Manejar function calling
-          const toolCalls =
-            retrieveStatus.required_action.submit_tool_outputs.tool_calls;
-
-
-            //=======================================================================================================================//
-            const toolOutputs = await Promise.all(
-              toolCalls.map(async (toolCall) => {
-                // Función existente: obtener fecha actual
-                if (toolCall.function.name === "get_current_date") {
-                  const dateResponse = await obtenerFechaActual();
-                  return {
-                    tool_call_id: toolCall.id,
-                    output: JSON.stringify(dateResponse),
-                  };
-                }
-                
-                // Nueva función: leer cupos disponibles de Supabase
-                if (toolCall.function.name === "leerCupos") {
-                  // Parseamos los argumentos que el asistente nos envió
-                  const args = JSON.parse(toolCall.function.arguments);
-                  
-                  console.log(`🔍 Asistente solicita leerCupos con argumentos:`, args);
-                  
-                  // Ejecutamos la consulta a Supabase
-                  const cuposResponse = await obtenerCuposDisponibles(args.fecha);
-                  
-                  console.log(`📦 Resultado de leerCupos:`, {
-                    success: cuposResponse.success,
-                    cantidad: cuposResponse.cantidad || 0
-                  });
-                  
-                  // Retornamos el resultado al asistente en formato JSON string
-                  return {
-                    tool_call_id: toolCall.id,
-                    output: JSON.stringify(cuposResponse),
-                  };
-                }
-                
-                // Si llegamos aquí, la función solicitada no está implementada
-                throw new Error(
-                  `Función no reconocida: ${toolCall.function.name}`
-                );
-              })
-            );
-          //=======================================================================================================================//
-
-          // Enviar resultados de las funciones
-          retrieveStatus = await client.beta.threads.runs.submitToolOutputs(
-            threadId,
-            runId,
-            { tool_outputs: toolOutputs }
-          );
-        } else if (retrieveStatus.status === "pending") {
-          // Añadir un pequeño delay para evitar sobrecarga
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        } else if (retrieveStatus.status === "expired") {
-          console.log("Run expirado, creando nuevo run...");
-          const newRunResult = await handleExpiredRun(
-            client,
-            threadId,
-            assistantId
-          );
-          runId = newRunResult.runId;
-          retrieveStatus.status = newRunResult.status;
-        } else if (retrieveStatus.status === "failed") {
-          throw new Error("El run ha fallado");
-        }
-      } while (!["completed", "failed"].includes(retrieveStatus.status));
-
-      return retrieveStatus;
-    };
-
-    // Función para obtener datos del clima
-    const obtenerFechaActual = async () => {
-      try {
-        const fecha = new Date();
-        const opciones = {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        };
-        const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
-        console.log("fecha", fechaFormateada);
-
-        return {
-          fecha: fechaFormateada,
-        };
-      } catch (error) {
-        console.error("Error obteniendo la fecha:", error);
-        throw new Error("No se pudo obtener la fecha actual");
-      }
-    };
-
-    const cleanAIResponse = (response) => {
-      // Usamos una expresión regular para encontrar y eliminar el patrón
-      // El patrón busca:
-      // - Texto que comienza con 【
-      // - Seguido por cualquier carácter (números, letras, símbolos) hasta encontrar
-      // - El cierre con 】
-      const cleanedResponse = response.replace(/【[^】]*】/g, "");
-
-      // Eliminamos espacios extra que pudieran quedar
-      return cleanedResponse.trim();
-    };
-
-    // Esperar a que el run esté completado
-    const completedRun = await waitForRunCompletion(threadId, run.id);
-
-    // Obtener la respuesta final
-    const messageList = await client.beta.threads.messages.list(threadId);
-    const respuesta = messageList.data[0].content[0].text.value;
-    console.log("respuesta: ", respuesta);
-
-    const respuesta2 = cleanAIResponse(respuesta);
-
+    // Retornar inmediatamente para evitar timeout de Vercel
+    // El frontend debe hacer polling a /script_chat_check
     res.json({
-      status: completedRun.status,
-      response: respuesta2,
+      status: run.status,
+      checkEndpoint: "/script_chat_check",
+      processing_Run_Id: run.id,
       threadId: threadId,
       sessionId: sessionId,
     });
   } catch (error) {
     console.error("Error en /script_chat:", error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Función para obtener datos del clima
+const obtenerFechaActual = async () => {
+  try {
+    const fecha = new Date();
+    const opciones = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
+    console.log("fecha", fechaFormateada);
+
+    return {
+      fecha: fechaFormateada,
+    };
+  } catch (error) {
+    console.error("Error obteniendo la fecha:", error);
+    throw new Error("No se pudo obtener la fecha actual");
+  }
+};
+
+const cleanAIResponse = (response) => {
+  // Usamos una expresión regular para encontrar y eliminar el patrón
+  // El patrón busca:
+  // - Texto que comienza con 【
+  // - Seguido por cualquier carácter (números, letras, símbolos) hasta encontrar
+  // - El cierre con 】
+  const cleanedResponse = response.replace(/【[^】]*】/g, "");
+
+  // Eliminamos espacios extra que pudieran quedar
+  return cleanedResponse.trim();
+};
+
+// Endpoint para verificar el estado del run (el frontend hace el polling)
+app.post("/script_chat_check", async (req, res) => {
+  console.log(
+    "------------------------------ /script_chat_check ----------------------------------"
+  );
+
+  try {
+    const { runId, threadId } = req.body;
+    console.log(`🔍 Verificando run ${runId} en thread ${threadId}`);
+
+    // Obtener estado del run UNA SOLA VEZ
+    let runStatus = await client.beta.threads.runs.retrieve(threadId, runId);
+    console.log(`🔄 Estado actual: ${runStatus.status}`);
+
+    // Manejar function calling si es necesario
+    if (runStatus.status === "requires_action") {
+      console.log("⚙️  Run requiere acción (function calling)");
+      const toolCalls =
+        runStatus.required_action.submit_tool_outputs.tool_calls;
+
+      const toolOutputs = await Promise.all(
+        toolCalls.map(async (toolCall) => {
+          // Función: obtener fecha actual
+          if (toolCall.function.name === "get_current_date") {
+            const dateResponse = await obtenerFechaActual();
+            return {
+              tool_call_id: toolCall.id,
+              output: JSON.stringify(dateResponse),
+            };
+          }
+
+          // Función: leer cupos disponibles de Supabase
+          if (toolCall.function.name === "leerCupos") {
+            const args = JSON.parse(toolCall.function.arguments);
+
+            console.log(`🔍 Asistente solicita leerCupos con argumentos:`, args);
+
+            const cuposResponse = await obtenerCuposDisponibles(args.fecha);
+
+            console.log(`📦 Resultado de leerCupos:`, {
+              success: cuposResponse.success,
+              cantidad: cuposResponse.cantidad || 0,
+            });
+
+            return {
+              tool_call_id: toolCall.id,
+              output: JSON.stringify(cuposResponse),
+            };
+          }
+
+          throw new Error(
+            `Función no reconocida: ${toolCall.function.name}`
+          );
+        })
+      );
+
+      // Enviar resultados y obtener el nuevo estado
+      console.log(`📤 Enviando ${toolOutputs.length} tool output(s)...`);
+      runStatus = await client.beta.threads.runs.submitToolOutputs(
+        threadId,
+        runId,
+        { tool_outputs: toolOutputs }
+      );
+      console.log(`✅ Tool outputs enviados. Nuevo status: ${runStatus.status}`);
+    }
+
+    // Verificar si está completado
+    if (runStatus.status === "completed") {
+      const messages = await client.beta.threads.messages.list(threadId);
+      const respuesta =
+        messages.data[0]?.content[0]?.text?.value || "Sin respuesta";
+      console.log("✅ Respuesta completada:", respuesta.slice(0, 100) + "...");
+
+      const respuesta2 = cleanAIResponse(respuesta);
+
+      return res.json({
+        status: "completed",
+        response: respuesta2,
+      });
+    }
+
+    // Si falló o expiró
+    if (["failed", "expired"].includes(runStatus.status)) {
+      console.error(`❌ Run ${runStatus.status}`);
+      return res.json({
+        status: "failed",
+        error: `La ejecución falló con status: ${runStatus.status}`,
+      });
+    }
+
+    // Si aún está procesando, simplemente retornar el estado
+    return res.json({
+      status: "processing",
+      message: `Estado actual: ${runStatus.status}`,
+    });
+  } catch (error) {
+    console.error("❌ Error en /script_chat_check:", error.message);
+    return res.status(500).json({
+      status: "failed",
+      error: error.message,
+    });
   }
 });
 // =========================================================================================== //
