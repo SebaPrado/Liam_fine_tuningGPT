@@ -7,7 +7,7 @@ import cors from "cors";
 
 import { obtenerUsuarioDeBaseDeDatos } from "./functions/database_functions.js";
 import { crear_Usuario_en_DB } from "./functions/database_functions.js";
-import { incrementCounter } from "./functions/incrementCounter.js";
+// import { incrementCounter } from "./functions/incrementCounter.js";
 import { pauseUser } from "./functions/pause_user.js";
 import { handleExpiredRun } from "./functions/handleExpiredRun.js";
 import { checkUserPauseStatus } from "./functions/checkUserPauseStatus.js";
@@ -29,6 +29,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // Aplica la configuración de CORS
 
+// Servir archivos estáticos desde la carpeta public
+app.use(express.static('public'));
+
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 /// =================================================================================================================== //
@@ -41,6 +44,36 @@ mesActual = mesActual < 10 ? "0" + mesActual : "" + mesActual;
 const CalendlyURL = `https://calendly.com/sebastian-pradomelesi/30min?back=1&month=${añoActual}-${mesActual}`;
 console.log(" 0.0) mes actual", mesActual);
 console.log(" 0.1) link calendly ", CalendlyURL);
+
+/// =================================================================================================================== //
+//// =====================================     ⬇️    Ruta raíz (/)     ⬇️     ===================================== //
+/// =================================================================================================================== //
+
+app.get("/", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Backend OpenAI API</title>
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    </head>
+    <body style="font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background-color: #f5f5f5;">
+      <h1 style="color: #333;">Backend OpenAI API</h1>
+      <p style="color: #666;">API backend para integración con OpenAI y WhatsApp.</p>
+      <h2 style="color: #333; margin-top: 30px;">Endpoints disponibles:</h2>
+      <ul style="color: #666; line-height: 1.8;">
+        <li><strong>GET</strong> /pause_status/:whatsapp_Id</li>
+        <li><strong>POST</strong> /whatsapp</li>
+        <li><strong>POST</strong> /check</li>
+        <li><strong>POST</strong> /pause</li>
+        <li><strong>POST</strong> /script_chat</li>
+      </ul>
+    </body>
+    </html>
+  `);
+});
 
 /// =================================================================================================================== //
 //// =====================================     ⬇️    Ruta /pause_status     ⬇️     ===================================== //
@@ -381,13 +414,12 @@ app.post("/script_chat", async (req, res) => {
                 // Función existente: obtener fecha actual
                 if (toolCall.function.name === "get_current_date") {
                   const dateResponse = await obtenerFechaActual();
-            
                   return {
                     tool_call_id: toolCall.id,
                     output: JSON.stringify(dateResponse),
                   };
                 }
-            
+                
                 // Nueva función: leer cupos disponibles de Supabase
                 if (toolCall.function.name === "leerCupos") {
                   // Parseamos los argumentos que el asistente nos envió
@@ -402,14 +434,14 @@ app.post("/script_chat", async (req, res) => {
                     success: cuposResponse.success,
                     cantidad: cuposResponse.cantidad || 0
                   });
-            
+                  
                   // Retornamos el resultado al asistente en formato JSON string
                   return {
                     tool_call_id: toolCall.id,
                     output: JSON.stringify(cuposResponse),
                   };
                 }
-            
+                
                 // Si llegamos aquí, la función solicitada no está implementada
                 throw new Error(
                   `Función no reconocida: ${toolCall.function.name}`
