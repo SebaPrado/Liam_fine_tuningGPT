@@ -523,12 +523,35 @@ app.post("/script_chat_check", async (req, res) => {
       });
     }
 
-    // Si falló o expiró
-    if (["failed", "expired"].includes(runStatus.status)) {
+    // ⭐ Capturar el error detallado cuando falla
+    if (["failed", "expired", "cancelled"].includes(runStatus.status)) {
       console.error(`❌ Run ${runStatus.status}`);
+
+      // Extraer información detallada del error
+      const errorInfo = {
+        status: runStatus.status,
+        last_error: runStatus.last_error || null,
+        failed_at: runStatus.failed_at || null,
+        incomplete_details: runStatus.incomplete_details || null,
+      };
+
+      // Log detallado para debugging
+      console.error(
+        "📋 Detalles completos del error:",
+        JSON.stringify(errorInfo, null, 2)
+      );
+
+      // Construir mensaje de error más descriptivo
+      let errorMessage = `El run ha ${runStatus.status}`;
+      if (runStatus.last_error) {
+        errorMessage += `: ${runStatus.last_error.message}`;
+        console.error(`🔴 Código de error: ${runStatus.last_error.code}`);
+      }
+
       return res.json({
         status: "failed",
-        error: `La ejecución falló con status: ${runStatus.status}`,
+        error: errorMessage,
+        errorDetails: errorInfo, // ⭐ Incluir detalles para el frontend
       });
     }
 
