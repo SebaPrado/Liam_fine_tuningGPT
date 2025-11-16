@@ -334,6 +334,43 @@ const obtenerCuposDisponibles = async (fecha) => {
     };
   }
 };
+
+// Función para obtener cupo según whatsapp desde Supabase
+const obtenerCupoSegunWhatsapp = async (whatsapp) => {
+  try {
+    console.log(`📱 Consultando cupo para whatsapp: ${whatsapp}`);
+    
+    const url = `${SUPABASE_URL}/rest/v1/rpc/obtener_cupo_segun_whatsapp`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ whatsapp_param: whatsapp })
+    });
+
+    const resultado = await response.json();
+
+    if (!response.ok) {
+      console.error('❌ Error en la llamada a Supabase:', resultado);
+      throw new Error('No se pudo consultar el cupo');
+    }
+
+    console.log(`✅ Resultado:`, resultado);
+    return resultado;
+
+  } catch (error) {
+    console.error('🚨 Error al conectar con Supabase:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
 //=======================================================================================================================//
 //=======================================================================================================================//
 
@@ -380,10 +417,23 @@ app.post("/script_chat", async (req, res) => {
       console.log("threadId", threadId);
     }
 
+    // Extraer datos de ManyChat
+    const nombreUsuario = req.body.nombre || "Usuario";
+    const whatsappUsuario = req.body.number || "+61487175193"; 
+
+    console.log(`👤 Usuario: ${nombreUsuario} | WhatsApp: ${whatsappUsuario}`);
+
+    // Crear mensaje enriquecido para el asistente
+    const mensajeConContexto = `
+Usuario: ${nombreUsuario}
+WhatsApp: ${whatsappUsuario}
+Mensaje: ${messages}
+`.trim();
+
     // Crear mensaje en el thread
     await client.beta.threads.messages.create(threadId, {
       role: "user",
-      content: messages,
+      content: mensajeConContexto,
     });
 
     // Crear run
@@ -474,21 +524,40 @@ app.post("/script_chat_check", async (req, res) => {
           }
 
           // Función: leer cupos disponibles de Supabase
-          if (toolCall.function.name === "leerCupos") {
+          // if (toolCall.function.name === "leerCupos") {
+          //   const args = JSON.parse(toolCall.function.arguments);
+
+          //   console.log(`🔍 Asistente solicita leerCupos con argumentos:`, args);
+
+          //   const cuposResponse = await obtenerCuposDisponibles(args.fecha);
+
+          //   console.log(`📦 Resultado de leerCupos:`, {
+          //     success: cuposResponse.success,
+          //     cantidad: cuposResponse.cantidad || 0,
+          //   });
+
+          //   return {
+          //     tool_call_id: toolCall.id,
+          //     output: JSON.stringify(cuposResponse),
+          //   };
+          // }
+
+          // Función: obtener cupo según whatsapp
+          if (toolCall.function.name === "obtenerCupoSegunWhatsapp") {
             const args = JSON.parse(toolCall.function.arguments);
-
-            console.log(`🔍 Asistente solicita leerCupos con argumentos:`, args);
-
-            const cuposResponse = await obtenerCuposDisponibles(args.fecha);
-
-            console.log(`📦 Resultado de leerCupos:`, {
-              success: cuposResponse.success,
-              cantidad: cuposResponse.cantidad || 0,
+            
+            console.log(`📱 Asistente solicita cupo para whatsapp:`, args.whatsapp);
+            
+            const cupoResponse = await obtenerCupoSegunWhatsapp(args.whatsapp);
+            
+            console.log(`📦 Resultado de obtenerCupoSegunWhatsapp:`, {
+              success: cupoResponse.success,
+              tiene_codigo: !!cupoResponse.cupo?.codigo
             });
-
+            
             return {
               tool_call_id: toolCall.id,
-              output: JSON.stringify(cuposResponse),
+              output: JSON.stringify(cupoResponse)
             };
           }
 
