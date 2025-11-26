@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics Assistance - Automation Flow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fefefe 0%, #fefefe 100%);
+            min-height: 100vh;
+            padding: 60px 20px;
+        }
+
+        .zoom-wrapper {
+            padding: 40px;
+            transform: scale(0.85);
+            transform-origin: top center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: rgb(27, 1, 83);
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Contenedor del roadmap en serpiente */
+        .roadmap-container {
+            position: relative;
+            padding: 30px 15px;
+        }
+
+        /* SVG para la línea serpiente */
+        .path-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .path-line {
+            fill: none;
+            stroke: url(#gradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 3000;
+            stroke-dashoffset: 3000;
+            animation: drawPath 4s ease-out forwards;
+        }
+
+        @keyframes drawPath {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Filas del roadmap */
+        .roadmap-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 50px;
+            margin-bottom: 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .roadmap-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Segunda fila va en orden inverso */
+        .roadmap-row.reverse {
+            flex-direction: row-reverse;
+        }
+
+        /* Nodos del roadmap */
+        .step {
+            flex: 1;
+            max-width: 280px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .step:nth-child(1) { animation-delay: 0.2s; }
+        .step:nth-child(2) { animation-delay: 0.4s; }
+        .roadmap-row.reverse .step:nth-child(1) { animation-delay: 0.6s; }
+        .roadmap-row.reverse .step:nth-child(2) { animation-delay: 0.8s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Círculo del icono */
+        .step-icon {
+            width: 65px;
+            height: 65px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .step-icon-img {
+            width: 38px;
+            height: 38px;
+            transition: transform 0.3s ease;
+        }
+
+        .step:hover .step-icon {
+            box-shadow: 0 15px 40px rgba(255, 71, 87, 0.4);
+        }
+
+        .step:hover .step-icon-img {
+            transform: scale(1.1);
+        }
+
+        /* Número del paso */
+        .step-number {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 22px;
+            height: 22px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+        }
+
+        /* Card del contenido */
+        .step-content {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover .step-content {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .step-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #636e72;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 0.75rem;
+            color: #636e72;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .step-description ul li {
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+        }
+
+        /* Lista de verificación dentro de step-content */
+        .step-content ul.verification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .step-content ul.verification-list li {
+            font-size: 0.75rem;
+            color: #636e72;
+            line-height: 1.5;
+            margin-bottom: 6px;
+            padding-left: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .step-content ul.verification-list li span {
+            color: #27ae60;
+            margin-right: 6px;
+        }
+
+        /* Detalles */
+        .step-details {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        .step-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-details li {
+            padding: 4px 0;
+            font-size: 0.72rem;
+            color: #636e72;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .step-details li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00b894;
+            font-weight: bold;
+        }
+
+        /* Badge de tiempo */
+        .time-badge {
+            display: inline-block;
+            background: #ff4757;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        /* Responsive */
+        @media (min-width: 769px) {
+            body {
+                padding-left: 120px;
+                padding-right: 120px;
+            }
+        }
+        @media (max-width: 968px) {
+            .roadmap-container {
+                padding: 20px;
+            }
+
+            .roadmap-row {
+                flex-direction: column !important;
+                align-items: center;
+                gap: 80px;
+                margin-bottom: 80px;
+            }
+
+            .step {
+                max-width: 400px;
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .path-svg {
+                display: none;
+            }
+
+            /* Línea vertical simple en móvil */
+            .roadmap-container::before {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 100px;
+                bottom: 100px;
+                width: 4px;
+                background: linear-gradient(180deg, #ff4757 0%, #ff6348 100%);
+                transform: translateX(-50%);
+                z-index: 0;
+            }
+        }
+
+        /* Animación de pulso */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .step-icon {
+            animation: pulse 3s infinite;
+        }
+
+        .step:hover .step-icon {
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="zoom-wrapper">
+        <div class="container">
+        <div class="header">
+            <h1>Logistics Assistance</h1>
+            <p>End-to-end automation via WhatsApp</p>
+        </div>
+
+        <div class="roadmap-container">
+            <!-- SVG para la línea serpiente -->
+            <svg class="path-svg" viewBox="0 0 1100 600" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#ff4757;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ff6348;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <!-- Línea en forma de S -->
+                <path class="path-line" d="M 160 60 L 160 130 Q 160 150 200 150 L 500 150 L 880 150 Q 920 150 920 200 L 920 280 Q 920 330 880 330 L 500 330 L 120 330 Q 80 330 80 380 L 80 460 Q 80 510 120 510 L 500 510 L 1000 510 L 880 510 L 160 510" />
+            </svg>
+
+            <!-- Primera fila: Paso 1 y 2 (izquierda a derecha) -->
+            <div class="roadmap-row">
+                <!-- Paso 1: Solicitud del cliente -->
+                <div class="step">
+                    <div class="step-icon">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp" class="step-icon-img">
+                        <span class="step-number">1</span>
+                    </div>
+                    <div class="step-content">
+                        <h6 class="step-title">Client Request</h6>
+                        <p class="step-description" style="font-style: italic;">
+                           "Hello, I'm looking for a loading slot to fulfill my contract 1234-5678"
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Verificación inteligente -->
+                <div class="step">
+                    <div class="step-icon">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/openai.svg" alt="OpenAI" class="step-icon-img">
+                        <span class="step-number">2</span>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">Control Steps</h3>
+                        <ul class="verification-list">
+                            <li><span>&#10003;</span> Verifies that the sender is a client</li>
+                            <li><span>&#10003;</span> Gets balance (tons) for the client's contract</li>
+                            <li><span>&#10003;</span> Client and contract match: proceeds</li>
+                            <li><span>&#10003;</span> Slot available, proceeds</li>
+                            <li><span>&#10003;</span> If no slot available, informs the client</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segunda fila: Paso 3 y 4 (derecha a izquierda) -->
+            <div class="roadmap-row reverse">
+                <!-- Paso 4: Confirmación -->
+                <div class="step">
+                   <div class="step-icon">
+                       <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp" class="step-icon-img">
+                       <span class="step-number">4</span>
+                   </div>
+                   <div class="step-content">
+                       <h6 class="step-title">Confirmation Ready</h6>
+                       <p class="step-description" style="font-style: italic;">
+                           "You just have been assigned a slot to fulfill your contract 1234-5678. Slot number: TRI-1234-10122015. Now, the remaining tons for contract 1234-5678 to fulfill is 90 tt."
+                       </p>
+                   </div>
+               </div>
+                <!-- Paso 3: Asignación -->
+                <div class="step">
+                    <div class="step-icon">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/openai.svg" alt="OpenAI" class="step-icon-img">
+                        <span class="step-number">3</span>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">Intelligent Assignment</h3>
+                        <p class="step-description">
+                            The system automatically assigns the available slot
+                        </p>
+                        
+                        <div class="step-details">
+                            <ul>
+                                <li>Queries slot table</li>
+                                <li>Assigns unique slot from "available" </li>
+                                <li>Updates database : "available" slot to "assigned"</li>
+                                <li>Informs the admin/company that the slot has been assigned </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+              
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Calcular la longitud real del path y ajustar la animación
+        document.addEventListener('DOMContentLoaded', function() {
+            const pathLines = document.querySelectorAll('.path-line');
+            pathLines.forEach(function(path) {
+                const pathLength = path.getTotalLength();
+                // Ajustar stroke-dasharray y stroke-dashoffset a la longitud real
+                path.style.strokeDasharray = pathLength;
+                path.style.strokeDashoffset = pathLength;
+            });
+        });
+    </script>
+</body>
+</html>

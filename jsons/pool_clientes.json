@@ -1,0 +1,79 @@
+{
+    "intermediarios": {
+      "rodrigoRoagro": [
+        {
+          "nombre_completo": "Juan Pérez",
+          "cuit": "20-12345678-3",
+          "whatsapp": "+5491165432278",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "María González",
+          "cuit": "27-87654321-5",
+          "whatsapp": "+34612345789",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Carlos Fernández",
+          "cuit": "23-33445566-9",
+          "whatsapp": "+61412556892",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Lucía Martínez",
+          "cuit": "27-99887766-1",
+          "whatsapp": "+5492995431122",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Agustín Rivas",
+          "cuit": "20-55667788-4",
+          "whatsapp": "+34699332781",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        }
+      ],
+      "RicardoAtc": [
+        {
+          "nombre_completo": "Sofía López",
+          "cuit": "27-44556677-8",
+          "whatsapp": "+61499821733",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Diego Torres",
+          "cuit": "20-11223344-2",
+          "whatsapp": "+5493816229945",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Valentina Cabrera",
+          "cuit": "23-88776655-0",
+          "whatsapp": "+34634883219",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Francisco Herrera",
+          "cuit": "20-66778899-1",
+          "whatsapp": "+5493512558811",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        },
+        {
+          "nombre_completo": "Elena Duarte",
+          "cuit": "27-22113344-6",
+          "whatsapp": "+61438992510",
+          "created_at": "2025-11-16T12:00:00",
+          "updated_at": "2025-11-16T12:00:00"
+        }
+      ]
+    }
+  }
+  

@@ -289,51 +289,48 @@ const SUPABASE_URL = 'https://bvdrogzfvzzcnibnzvmy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2ZHJvZ3pmdnp6Y25pYm56dm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2NDAzMjgsImV4cCI6MjA1ODIxNjMyOH0.nYvOxNSJod1unLUXVIOYYsaD5ft-1ESr-g5qWcDiZus';
 
 // Función para consultar cupos disponibles en Supabase
-const obtenerCuposDisponibles = async (fecha) => {
-  try {
-    console.log(`📅 Consultando cupos para fecha: ${fecha}`);
+// const obtenerCuposDisponibles = async (fecha) => {
+//   try {
+//     console.log(`📅 Consultando cupos para fecha: ${fecha}`);
     
-    const url = `${SUPABASE_URL}/rest/v1/rpc/leercupos`;
+//     const url = `${SUPABASE_URL}/rest/v1/rpc/leercupos`;
     
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ fecha_param: fecha })
-    });
+//     const response = await fetch(url, {
+//       method: 'POST',
+//       headers: {
+//         'apikey': SUPABASE_KEY,
+//         'Authorization': `Bearer ${SUPABASE_KEY}`,
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({ fecha_param: fecha })
+//     });
 
-    const cupos = await response.json();
+//     const cupos = await response.json();
 
-    if (!response.ok) {
-      console.error('❌ Error en la llamada a Supabase:', cupos);
-      throw new Error('No se pudieron obtener los cupos de Supabase');
-    }
+//     if (!response.ok) {
+//       console.error('❌ Error en la llamada a Supabase:', cupos);
+//       throw new Error('No se pudieron obtener los cupos de Supabase');
+//     }
 
-    console.log(`✅ Cupos encontrados: ${cupos.length}`);
+//     console.log(`✅ Cupos encontrados: ${cupos.length}`);
     
-    // Retornamos un objeto estructurado con la información
-    return {
-      success: true,
-      fecha: fecha,
-      cantidad: cupos.length,
-      cupos: cupos
-    };
+//     return {
+//       success: true,
+//       fecha: fecha,
+//       cantidad: cupos.length,
+//       cupos: cupos
+//     };
 
-  } catch (error) {
-    console.error('🚨 Error al conectar con Supabase:', error);
+//   } catch (error) {
+//     console.error('🚨 Error al conectar con Supabase:', error);
     
-    // En caso de error, retornamos un objeto con información del error
-    // Esto permite que el asistente pueda informar al usuario del problema
-    return {
-      success: false,
-      error: error.message,
-      fecha: fecha
-    };
-  }
-};
+//     return {
+//       success: false,
+//       error: error.message,
+//       fecha: fecha
+//     };
+//   }
+// };
 
 // Función para obtener cupo según whatsapp desde Supabase
 const obtenerCupoSegunWhatsapp = async (whatsapp) => {
@@ -509,6 +506,7 @@ app.post("/script_chat_check", async (req, res) => {
     // Manejar function calling si es necesario
     if (runStatus.status === "requires_action") {
       console.log("⚙️  Run requiere acción (function calling)");
+      
       const toolCalls =
         runStatus.required_action.submit_tool_outputs.tool_calls;
 
@@ -522,25 +520,6 @@ app.post("/script_chat_check", async (req, res) => {
               output: JSON.stringify(dateResponse),
             };
           }
-
-          // Función: leer cupos disponibles de Supabase
-          // if (toolCall.function.name === "leerCupos") {
-          //   const args = JSON.parse(toolCall.function.arguments);
-
-          //   console.log(`🔍 Asistente solicita leerCupos con argumentos:`, args);
-
-          //   const cuposResponse = await obtenerCuposDisponibles(args.fecha);
-
-          //   console.log(`📦 Resultado de leerCupos:`, {
-          //     success: cuposResponse.success,
-          //     cantidad: cuposResponse.cantidad || 0,
-          //   });
-
-          //   return {
-          //     tool_call_id: toolCall.id,
-          //     output: JSON.stringify(cuposResponse),
-          //   };
-          // }
 
           // Función: obtener cupo según whatsapp
           if (toolCall.function.name === "obtenerCupoSegunWhatsapp") {
